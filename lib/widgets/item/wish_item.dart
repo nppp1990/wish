@@ -108,6 +108,8 @@ class WishItem extends StatelessWidget {
                 children: [
                   Text(
                     itemData.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                         fontWeight: FontWeight.w900, color: Colors.black, fontSize: 18),
                   ),

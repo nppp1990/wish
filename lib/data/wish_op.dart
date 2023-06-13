@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:wish/data/data_base_helper.dart';
 import 'package:wish/data/wish_data.dart';
+import 'package:wish/utils/struct.dart';
 import 'package:wish/utils/timeUtils.dart';
 import 'package:wish/widgets/picker.dart';
 
@@ -32,8 +33,8 @@ class WishOp {
   final OpDoneStep? opDoneStep; // doneStep
   final OpRepeatCount? opRepeatCount; // updateCount
 
-  WishOp(this.opType, this.time, this.wishId, this.wishName, this.wishType, this.opEdit,
-      this.opDoneStep, this.opRepeatCount, this.isDone);
+  WishOp(this.opType, this.time, this.wishId, this.wishName, this.wishType,
+      this.opEdit, this.opDoneStep, this.opRepeatCount, this.isDone);
 
   Map<String, dynamic> toMap() {
     return {
@@ -52,7 +53,8 @@ class WishOp {
   factory WishOp.fromMap(Map<String, dynamic> map) {
     return WishOp(
       WishOpType.values[map[DatabaseHelper.optionType]],
-      DateTime.fromMillisecondsSinceEpoch(map[DatabaseHelper.optionTime] * 1000),
+      DateTime.fromMillisecondsSinceEpoch(
+          map[DatabaseHelper.optionTime] * 1000),
       map[DatabaseHelper.optionWishId],
       map[DatabaseHelper.optionWishName],
       WishType.values[map[DatabaseHelper.optionWishType]],
@@ -65,7 +67,9 @@ class WishOp {
       map[DatabaseHelper.optionRepeatCount] == null
           ? null
           : OpRepeatCount.fromValue(map[DatabaseHelper.optionRepeatCount]),
-      map[DatabaseHelper.optionDone] == null ? null : map[DatabaseHelper.optionDone] == 1,
+      map[DatabaseHelper.optionDone] == null
+          ? null
+          : map[DatabaseHelper.optionDone] == 1,
     );
   }
 
@@ -153,7 +157,7 @@ class WishOp {
     }
   }
 
-  List<EditDesc>? getShowTitle2() {
+  Pair<List<EditDesc>, int>? getShowTitle2() {
     if (opEdit != null && opEdit!.editMap.isNotEmpty) {
       List<EditDesc> res = [];
       int index = 0;
@@ -194,7 +198,8 @@ class WishOp {
             if (breakAddTitle(index, res, key, value)) {
               break;
             }
-            _addPreInfo(res, '打卡时间', value: TimeUtils.getShowDateFromTimeStr(value));
+            _addPreInfo(res, '打卡时间',
+                value: TimeUtils.getShowDateFromTimeStr(value));
             break;
           case EditType.checkInPeriod:
             index++;
@@ -208,7 +213,8 @@ class WishOp {
             if (breakAddTitle(index, res, key, value)) {
               break;
             }
-            _addPreInfo(res, '截止时间', value: TimeUtils.getShowDateFromTimeStr(value));
+            _addPreInfo(res, '截止时间',
+                value: TimeUtils.getShowDateFromTimeStr(value));
             break;
           case EditType.stepList:
             index++;
@@ -245,20 +251,20 @@ class WishOp {
         res.add(EditDesc('等信息'));
       }
 
-      return res;
+      return Pair(res, index > 2 ? 3 : index);
     }
     if (opDoneStep != null) {
       List<EditDesc> res = [];
       res.add(EditDesc(opDoneStep!.done ? '完成了' : '取消完成了', isKey: true));
       res.add(EditDesc('步骤${opDoneStep!.index + 1}'));
-      return res;
+      return Pair(res, 1);
     }
     if (opRepeatCount != null) {
       List<EditDesc> res = [];
       res.add(EditDesc('${opRepeatCount!.fromCount}', isKey: true));
       res.add(EditDesc(' -> '));
       res.add(EditDesc('${opRepeatCount!.toCount}', isKey: true));
-      return res;
+      return Pair(res, 1);
     }
     return null;
   }
@@ -297,7 +303,8 @@ class OpEdit {
 
   @override
   String toString() {
-    return json.encode(editMap.map((key, value) => MapEntry(key.index.toString(), value)));
+    return json.encode(
+        editMap.map((key, value) => MapEntry(key.index.toString(), value)));
   }
 
   factory OpEdit.fromMap(String value) {
@@ -305,7 +312,8 @@ class OpEdit {
     print(
         '---eee:${json.decode(value).map((key, value) => MapEntry(EditType.values[int.parse(key)], value))}');
     return OpEdit(
-      json.decode(value).map((key, value) => MapEntry(EditType.values[int.parse(key)], value)),
+      json.decode(value).map(
+          (key, value) => MapEntry(EditType.values[int.parse(key)], value)),
     );
   }
 }

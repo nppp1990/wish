@@ -29,10 +29,18 @@ class OpItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lineColor = Colors.black.withOpacity(0.2);
-    final subTitle = op.getShowTitle2();
+    final subTitlePair = op.getShowTitle2();
+    final double itemHeight;
+    if (subTitlePair == null) {
+      itemHeight = 70.0;
+    } else {
+      itemHeight = 70.0 + 15.0 * subTitlePair.second;
+    }
+    var subTitle = subTitlePair?.first;
+
     return Container(
       padding: padding,
-      height: 100,
+      height: itemHeight,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -48,10 +56,11 @@ class OpItem extends StatelessWidget {
                 ),
                 child: _buildIcon(op.opType, 16),
               ),
-              Container(
-                height: 74,
-                width: 1,
-                color: lineColor,
+              Expanded(
+                child: Container(
+                  width: 1,
+                  color: lineColor,
+                ),
               ),
             ],
           ),
@@ -67,12 +76,14 @@ class OpItem extends StatelessWidget {
                   Expanded(
                     child: Text(
                       op.getShowTitle1(),
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                   ),
                   Text(
                     op.getShowTime(),
-                    style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.6)),
+                    style: TextStyle(
+                        fontSize: 14, color: Colors.black.withOpacity(0.6)),
                   ),
                 ],
               ),
@@ -80,7 +91,8 @@ class OpItem extends StatelessWidget {
               if (subTitle != null && subTitle.isNotEmpty)
                 RichText(
                   text: TextSpan(
-                      style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.6)),
+                      style: TextStyle(
+                          fontSize: 14, color: Colors.black.withOpacity(0.6)),
                       children: subTitle
                           .map((editDesc) => TextSpan(
                                 text: editDesc.value,

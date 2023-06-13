@@ -229,14 +229,14 @@ class _OpPageViewState extends State<OpPageView> {
       // backgroundColor: Colors.orange,
       flexibleSpace: FlexibleSpaceBar(
           //伸展处布局
-          titlePadding: const EdgeInsets.only(left: 55, bottom: 15),
+          titlePadding: const EdgeInsets.only(left: 55, bottom: 15, right: 30),
           //标题边距
           collapseMode: CollapseMode.parallax,
           //视差效果
           title: Text(
             widget.itemData.name,
             maxLines: 1,
-            overflow: TextOverflow.fade,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w700),
           ),
           stretchModes: const [StretchMode.blurBackground, StretchMode.zoomBackground],
@@ -706,7 +706,7 @@ class _CheckInContentState extends State<CheckInContent> {
             height: 6,
           ),
           ItemWrapLabelRow(
-              label: '上次打卡', value: _getLatestCheckin(days, widget.itemData.periodDays!)),
+              label: '上次打卡', value: _getLatestCheckIn(days, widget.itemData.periodDays!)),
         ],
         Transform.translate(
           offset: const Offset(0, -6),
@@ -736,7 +736,7 @@ class _CheckInContentState extends State<CheckInContent> {
     );
   }
 
-  String _getLatestCheckin(int days, int periodDays) {
+  String _getLatestCheckIn(int days, int periodDays) {
     if (periodDays < days) {
       return '${TimeUtils.getShowDate(widget.itemData.checkedTimeList!.last)}  已超过$periodDays天未打卡了';
     }
