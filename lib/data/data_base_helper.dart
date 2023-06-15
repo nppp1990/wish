@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:wish/data/wish_data.dart';
 import 'package:wish/data/wish_op.dart';
+import 'package:wish/data/wish_review.dart';
+import 'package:wish/utils/struct.dart';
 import 'package:wish/utils/timeUtils.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -25,6 +27,7 @@ class DatabaseHelper {
   static const String fieldCheckedTimeList = 'checkedTimeList';
   static const String fieldEndTime = 'endTime';
   static const String fieldDone = 'done';
+  static const String fieldPaused = 'paused';
   static const String fieldStepList = 'stepList';
   static const String fieldRepeatCount = 'repeatCount';
   static const String fieldActualRepeatCount = 'actualRepeatCount';
@@ -43,6 +46,7 @@ class DatabaseHelper {
   static const String optionDoneStep = 'doneStep';
   static const String optionRepeatCount = 'repeatCount';
   static const String optionDone = 'done';
+  static const String optionPaused = 'paused';
 
   DatabaseHelper._init();
 
@@ -74,6 +78,7 @@ class DatabaseHelper {
         $fieldPeriodDays INTEGER,
         $fieldEndTime INTEGER,
         $fieldDone INTEGER,
+        $fieldPaused INTEGER,
         $fieldStepList TEXT,
         $fieldRepeatCount INTEGER,
         $fieldActualRepeatCount INTEGER,
@@ -94,7 +99,8 @@ class DatabaseHelper {
         $optionEdit TEXT,
         $optionDoneStep TEXT,
         $optionRepeatCount TEXT,
-        $optionDone INTEGER
+        $optionDone INTEGER,
+        $optionPaused INTEGER
       )
     ''');
   }
@@ -103,8 +109,7 @@ class DatabaseHelper {
     try {
       final db = await database;
       return await db.transaction((txn) async {
-        var res =
-            await txn.delete(tableWish, where: '$fieldColumnId = ?', whereArgs: [wishData.id]);
+        var res = await txn.delete(tableWish, where: '$fieldColumnId = ?', whereArgs: [wishData.id]);
         // 插入一条删除记录
         await txn.insert(tableWishOption, {
           optionType: WishOpType.delete.index,
@@ -219,8 +224,8 @@ class DatabaseHelper {
     try {
       final db = await database;
       return await db.transaction((txn) async {
-        final res = await txn.update(tableWish, wishData.toMap(),
-            where: '$fieldColumnId = ?', whereArgs: [wishData.id]);
+        final res =
+            await txn.update(tableWish, wishData.toMap(), where: '$fieldColumnId = ?', whereArgs: [wishData.id]);
         // 插入一条update记录
         await txn.insert(tableWishOption, {
           optionType: WishOpType.edit.index,
@@ -258,6 +263,29 @@ class DatabaseHelper {
     }
   }
 
+  Future<int> handlePauseOp(WishData wishData, bool paused) async {
+    try {
+      final db = await database;
+      final nowTime = DateTime.now();
+      return await db.transaction((txn) async {
+        await txn.rawUpdate('''
+        UPDATE $tableWish
+          SET $fieldPaused = ?, $fieldModifiedTime = ?
+          WHERE $fieldColumnId = ?
+          ''', [paused ? 1 : 0, TimeUtils.getTimeStamp(nowTime), wishData.id]);
+        // 插入一条done操作
+        return await txn.insert(tableWishOption, {
+          optionType: WishOpType.pause.index,
+          optionPaused: paused,
+          ...getOpGeneralMap(wishData, nowTime),
+        });
+      });
+    } catch (e) {
+      print('handle paused op error:$e');
+      return -1;
+    }
+  }
+
   Future<int> handleDoneStep(WishData wishData, List<WishStep> stepList, int index) async {
     try {
       final db = await database;
@@ -267,11 +295,7 @@ class DatabaseHelper {
         UPDATE $tableWish
           SET $fieldModifiedTime = ?, $fieldStepList = ?
           WHERE $fieldColumnId = ?
-          ''', [
-          TimeUtils.getTimeStamp(nowTime),
-          json.encode(stepList.map((e) => e.toMap()).toList()),
-          wishData.id
-        ]);
+          ''', [TimeUtils.getTimeStamp(nowTime), json.encode(stepList.map((e) => e.toMap()).toList()), wishData.id]);
 
         return await txn.insert(tableWishOption, {
           optionType: WishOpType.doneStep.index,
@@ -384,9 +408,7 @@ class DatabaseHelper {
     try {
       final db = await database;
       final result = await db.query(tableWish,
-          where: '$fieldWishType = ?',
-          whereArgs: [type.index],
-          orderBy: getOrderBy(sortType, isAsc));
+          where: '$fieldWishType = ?', whereArgs: [type.index], orderBy: getOrderBy(sortType, isAsc));
       return result.map((json) => WishData.fromMap(json)).toList();
     } catch (e) {
       return null;
@@ -396,9 +418,65 @@ class DatabaseHelper {
   Future<List<WishData>?> getWishDoneList(SortType sortType, bool isAsc) async {
     try {
       final db = await database;
-      final result = await db.query(tableWish,
-          where: '$fieldDone = ?', whereArgs: [1], orderBy: getOrderBy(sortType, isAsc));
+      final result =
+          await db.query(tableWish, where: '$fieldDone = ?', whereArgs: [1], orderBy: getOrderBy(sortType, isAsc));
       return result.map((json) => WishData.fromMap(json)).toList();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  getWishStatus() async {
+    final db = await database;
+    var time1 = DateTime.now().millisecondsSinceEpoch;
+    var list = await getAllWish(SortType.modifiedTime, false);
+    var totalCount2 = 0;
+    var doneCount2 = 0;
+    var delayCount = 0;
+    for (var wish in list!) {
+      totalCount2++;
+      if (wish.done) {
+        doneCount2++;
+      }
+    }
+    print('totalCount:$totalCount2, doneCount:$doneCount2, deleteCount:');
+
+    print('---get1:${DateTime.now().millisecondsSinceEpoch - time1}');
+    var time2 = DateTime.now().millisecondsSinceEpoch;
+    var totalCount = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $tableWish'));
+    var doneCount = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $tableWish WHERE $fieldDone = 1'));
+    // var deleteCount = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $tableWishOption WHERE $optionType = ${WishOpType.delete.index}'));
+    print('totalCount:$totalCount, doneCount:$doneCount, deleteCount:');
+    print('---get2:${DateTime.now().millisecondsSinceEpoch - time2}');
+  }
+
+  Future<Pair<List<WishData>, List<WishOp>>?> getReviewInfo(DateTime? fromTime, DateTime? toTime) async {
+    final db = await database;
+    try {
+      return await db.transaction((txn) async {
+        final res1 = await txn.query(tableWish);
+        var wishList = res1.map((json) => WishData.fromMap(json)).toList();
+
+        // fromTime到toTime之间的操作、排除掉edit
+        final String where;
+        final List<int?> whereArgs;
+        if (fromTime != null && toTime != null) {
+          where = '$optionTime >= ? AND $optionTime <= ? AND $optionType != ?';
+          whereArgs = [
+            TimeUtils.getTimeStamp(fromTime),
+            TimeUtils.getTimeStamp(toTime),
+            WishOpType.edit.index,
+          ];
+        } else {
+          where = '$optionType != ?';
+          whereArgs = [
+            WishOpType.edit.index,
+          ];
+        }
+        final res2 = await txn.query(tableWishOption, where: where, whereArgs: whereArgs, orderBy: '$optionTime DESC');
+        final opList = res2.map((json) => WishOp.fromMap(json)).toList();
+        return Pair(wishList, opList);
+      });
     } catch (e) {
       return null;
     }

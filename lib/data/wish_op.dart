@@ -12,6 +12,7 @@ enum WishOpType {
   delete,
   edit,
   done,
+  pause,
   doneStep,
   checkIn,
   updateCount,
@@ -29,12 +30,13 @@ class WishOp {
   final String wishName; // wishName
   final WishType wishType; // wishType
   final bool? isDone; // done
+  final bool? isPaused;
   final OpEdit? opEdit; // edit
   final OpDoneStep? opDoneStep; // doneStep
   final OpRepeatCount? opRepeatCount; // updateCount
 
-  WishOp(this.opType, this.time, this.wishId, this.wishName, this.wishType,
-      this.opEdit, this.opDoneStep, this.opRepeatCount, this.isDone);
+  WishOp(this.opType, this.time, this.wishId, this.wishName, this.wishType, this.opEdit, this.opDoneStep,
+      this.opRepeatCount, this.isDone, this.isPaused);
 
   Map<String, dynamic> toMap() {
     return {
@@ -47,29 +49,24 @@ class WishOp {
       DatabaseHelper.optionDoneStep: opDoneStep?.toString(),
       DatabaseHelper.optionRepeatCount: opRepeatCount?.toString(),
       DatabaseHelper.optionDone: isDone == null ? null : (isDone! ? 1 : 0),
+      DatabaseHelper.optionPaused: isPaused == null ? null : (isPaused! ? 1 : 0),
     };
   }
 
   factory WishOp.fromMap(Map<String, dynamic> map) {
     return WishOp(
       WishOpType.values[map[DatabaseHelper.optionType]],
-      DateTime.fromMillisecondsSinceEpoch(
-          map[DatabaseHelper.optionTime] * 1000),
+      DateTime.fromMillisecondsSinceEpoch(map[DatabaseHelper.optionTime] * 1000),
       map[DatabaseHelper.optionWishId],
       map[DatabaseHelper.optionWishName],
       WishType.values[map[DatabaseHelper.optionWishType]],
-      map[DatabaseHelper.optionEdit] == null
-          ? null
-          : OpEdit.fromMap(map[DatabaseHelper.optionEdit]),
-      map[DatabaseHelper.optionDoneStep] == null
-          ? null
-          : OpDoneStep.fromValue(map[DatabaseHelper.optionDoneStep]),
+      map[DatabaseHelper.optionEdit] == null ? null : OpEdit.fromMap(map[DatabaseHelper.optionEdit]),
+      map[DatabaseHelper.optionDoneStep] == null ? null : OpDoneStep.fromValue(map[DatabaseHelper.optionDoneStep]),
       map[DatabaseHelper.optionRepeatCount] == null
           ? null
           : OpRepeatCount.fromValue(map[DatabaseHelper.optionRepeatCount]),
-      map[DatabaseHelper.optionDone] == null
-          ? null
-          : map[DatabaseHelper.optionDone] == 1,
+      map[DatabaseHelper.optionDone] == null ? null : map[DatabaseHelper.optionDone] == 1,
+      map[DatabaseHelper.optionPaused] == null ? null : map[DatabaseHelper.optionPaused] == 1,
     );
   }
 
@@ -77,14 +74,14 @@ class WishOp {
     return time.toLocal().toString().substring(0, 16);
   }
 
-  String getShowTitle1() {
+  String getShowTitle1(bool showLabelName) {
     switch (opType) {
       case WishOpType.create:
-        return '许下了心愿：$wishName';
+        return '许下了心愿${showLabelName ? '：$wishName' : ''}';
       case WishOpType.delete:
-        return '丢下了心愿：$wishName';
+        return '丢下了心愿${showLabelName ? '：$wishName' : ''}';
       case WishOpType.edit:
-        return '修改了心愿：$wishName';
+        return '修改了心愿${showLabelName ? '：$wishName' : ''}';
       case WishOpType.done:
         return isDone! ? '完成了心愿' : '取消完成心愿';
       case WishOpType.doneStep:
@@ -93,6 +90,8 @@ class WishOp {
         return '打卡一次';
       case WishOpType.updateCount:
         return '更新了次数';
+      case WishOpType.pause:
+        return isPaused! ? '暂停了打卡任务' : '恢复了打卡任务';
     }
   }
 
@@ -183,8 +182,8 @@ class WishOp {
               break;
             }
             _addPreInfo(res, '颜色');
-            res.add(EditDesc(ColorType.values[value].toString(),
-                isKey: true, color: ColorType.values[value].toColor()));
+            res.add(
+                EditDesc(ColorType.values[value].toString(), isKey: true, color: ColorType.values[value].toColor()));
             break;
           case EditType.note:
             index++;
@@ -198,8 +197,7 @@ class WishOp {
             if (breakAddTitle(index, res, key, value)) {
               break;
             }
-            _addPreInfo(res, '打卡时间',
-                value: TimeUtils.getShowDateFromTimeStr(value));
+            _addPreInfo(res, '打卡时间', value: TimeUtils.getShowDateFromTimeStr(value));
             break;
           case EditType.checkInPeriod:
             index++;
@@ -213,8 +211,7 @@ class WishOp {
             if (breakAddTitle(index, res, key, value)) {
               break;
             }
-            _addPreInfo(res, '截止时间',
-                value: TimeUtils.getShowDateFromTimeStr(value));
+            _addPreInfo(res, '截止时间', value: TimeUtils.getShowDateFromTimeStr(value));
             break;
           case EditType.stepList:
             index++;
@@ -303,17 +300,14 @@ class OpEdit {
 
   @override
   String toString() {
-    return json.encode(
-        editMap.map((key, value) => MapEntry(key.index.toString(), value)));
+    return json.encode(editMap.map((key, value) => MapEntry(key.index.toString(), value)));
   }
 
   factory OpEdit.fromMap(String value) {
     print('---value：$value');
-    print(
-        '---eee:${json.decode(value).map((key, value) => MapEntry(EditType.values[int.parse(key)], value))}');
+    print('---eee:${json.decode(value).map((key, value) => MapEntry(EditType.values[int.parse(key)], value))}');
     return OpEdit(
-      json.decode(value).map(
-          (key, value) => MapEntry(EditType.values[int.parse(key)], value)),
+      json.decode(value).map((key, value) => MapEntry(EditType.values[int.parse(key)], value)),
     );
   }
 }

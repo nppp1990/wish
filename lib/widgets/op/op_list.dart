@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:wish/data/wish_op.dart';
 
+class OpListOption {
+  final bool showEdit;
+  final bool showName;
+
+  OpListOption({this.showEdit = false, this.showName = false});
+}
+
 class OpList extends StatelessWidget {
   final List<WishOp> list;
   final EdgeInsetsGeometry? padding;
+  final OpListOption? option;
 
-  const OpList({super.key, required this.list, this.padding});
+  const OpList({super.key, required this.list, this.padding, this.option});
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +22,7 @@ class OpList extends StatelessWidget {
           (_, int index) => OpItem(
                 op: list[index],
                 padding: padding,
+                option: option,
               ),
           childCount: list.length),
     );
@@ -23,20 +32,26 @@ class OpList extends StatelessWidget {
 class OpItem extends StatelessWidget {
   final WishOp op;
   final EdgeInsetsGeometry? padding;
+  final OpListOption? option;
 
-  const OpItem({super.key, required this.op, this.padding});
+  const OpItem({super.key, required this.op, this.padding, this.option});
 
   @override
   Widget build(BuildContext context) {
+    final showName = option?.showName ?? false;
     final lineColor = Colors.black.withOpacity(0.2);
     final subTitlePair = op.getShowTitle2();
     final double itemHeight;
     if (subTitlePair == null) {
-      itemHeight = 70.0;
+      itemHeight = 70.0 + (showName ? 15.0 : 0.0);
     } else {
-      itemHeight = 70.0 + 15.0 * subTitlePair.second;
+      itemHeight = 70.0 + 15.0 * subTitlePair.second + (showName ? 15.0 : 0.0);
     }
     var subTitle = subTitlePair?.first;
+    var labelText = Text(
+      op.getShowTitle1(!showName),
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+    );
 
     return Container(
       padding: padding,
@@ -74,33 +89,34 @@ class OpItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: Text(
-                      op.getShowTitle1(),
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w500),
-                    ),
+                    child: showName
+                        ? Text(
+                            op.wishName,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          )
+                        : labelText,
                   ),
                   Text(
                     op.getShowTime(),
-                    style: TextStyle(
-                        fontSize: 14, color: Colors.black.withOpacity(0.6)),
+                    style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.6)),
                   ),
                 ],
               ),
+              if (option?.showName ?? false) ...[
+                const SizedBox(height: 5),
+                labelText,
+              ],
               const SizedBox(height: 5),
               if (subTitle != null && subTitle.isNotEmpty)
                 RichText(
                   text: TextSpan(
-                      style: TextStyle(
-                          fontSize: 14, color: Colors.black.withOpacity(0.6)),
+                      style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.6)),
                       children: subTitle
                           .map((editDesc) => TextSpan(
                                 text: editDesc.value,
                                 style: TextStyle(
-                                  color: editDesc.color ??
-                                      (editDesc.isKey
-                                          ? Colors.black
-                                          : Colors.black.withOpacity(0.6)),
+                                  color:
+                                      editDesc.color ?? (editDesc.isKey ? Colors.black : Colors.black.withOpacity(0.6)),
                                 ),
                               ))
                           .toList()),

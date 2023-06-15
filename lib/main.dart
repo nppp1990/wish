@@ -6,6 +6,7 @@ import 'package:wish/data/wish_data.dart';
 import 'package:wish/data/wish_icons.dart';
 import 'package:wish/edit_page.dart';
 import 'package:wish/list.dart';
+import 'package:wish/review_page.dart';
 import 'package:wish/router/router_utils.dart';
 import 'package:wish/themes/gallery_theme_data.dart';
 import 'package:wish/widgets/drawer.dart';
@@ -123,12 +124,17 @@ class _HomePageState extends State<HomePage> {
                 });
                 break;
               case DrawerType.setting:
+                break;
               case DrawerType.review:
-                // todo
+                _gotoReviewPage();
                 break;
             }
           },
         ));
+  }
+
+  _gotoReviewPage() {
+    Navigator.push(context, Right2LeftRouter(child: ReviewPage()));
   }
 
   _gotoCreatePage() {

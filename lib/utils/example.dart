@@ -23,8 +23,6 @@ var _emptyTips = [
   EmptyTip('世界上最快乐的事\n莫过于为理想而奋斗', author: '苏格拉底'),
 ];
 
-
-
 class BaseExample {
   final String title;
 

@@ -6,8 +6,8 @@ class DoneSwitch extends StatefulWidget {
   final double switchScale;
   final double textSize;
   final double contentPadding;
-  final String openText;
-  final String closeText;
+  final String noText;
+  final String yesText;
   final bool initValue;
   final ValueChanged<bool>? onChanged;
   final CanToggle? toggleable;
@@ -17,8 +17,8 @@ class DoneSwitch extends StatefulWidget {
     this.switchScale = 1.5,
     this.textSize = 18,
     this.contentPadding = 6,
-    required this.openText,
-    required this.closeText,
+    required this.noText,
+    required this.yesText,
     this.initValue = false,
     this.toggleable,
     this.onChanged,
@@ -42,7 +42,7 @@ class _DoneSwitchState extends State<DoneSwitch> {
     return Row(
       children: [
         Text(
-          _done ? widget.closeText : widget.openText,
+          _done ? widget.yesText : widget.noText,
           style: TextStyle(
             fontSize: widget.textSize,
             color: _done ? Colors.black : Colors.grey,

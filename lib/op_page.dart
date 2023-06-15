@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:wish/data/data_base_helper.dart';
 import 'package:wish/data/event_manager.dart';
 import 'package:wish/data/wish_data.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:wish/data/wish_op.dart';
 import 'package:wish/edit_page.dart';
 import 'package:wish/router/router_utils.dart';
 import 'package:wish/utils/timeUtils.dart';
+import 'package:wish/widgets/card_item.dart';
 import 'package:wish/widgets/op/done_switch.dart';
 import 'package:wish/widgets/op/op_list.dart';
 import 'package:wish/widgets/op/radio_check.dart';
@@ -28,12 +28,14 @@ class OpPage extends StatefulWidget {
 }
 
 class _OpPageState extends State<OpPage> {
-  final GlobalKey<_OpPageViewState> opPageViewKey = GlobalKey<_OpPageViewState>();
+  final GlobalKey<_OpPageViewState> opPageViewKey =
+      GlobalKey<_OpPageViewState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: OpPageView(key: opPageViewKey, itemData: widget.itemData, index: widget.index),
+      body: OpPageView(
+          key: opPageViewKey, itemData: widget.itemData, index: widget.index),
       floatingActionButton: DoneFloatButton(
         wishData: widget.itemData,
         index: widget.index,
@@ -82,7 +84,8 @@ class _DoneFloatButtonState extends State<DoneFloatButton> {
     return FloatingActionButton(
       tooltip: _done ? '直接取消' : '取消完成',
       onPressed: () async {
-        bool? res = await _showDoneChangedDialog(context, widget.wishData, _done, widget.canDone());
+        bool? res = await _showDoneChangedDialog(
+            context, widget.wishData, _done, widget.canDone());
         if (res ?? false) {
           _handleDoneOp(!_done);
           setState(() {
@@ -93,21 +96,24 @@ class _DoneFloatButtonState extends State<DoneFloatButton> {
       backgroundColor: Colors.white,
       child: Icon(
         size: 40,
-        _done ? Icons.radio_button_checked_outlined : Icons.radio_button_unchecked_outlined,
+        _done
+            ? Icons.radio_button_checked_outlined
+            : Icons.radio_button_unchecked_outlined,
         color: Colors.black,
       ),
     );
   }
 
-  Future<bool?> _showDoneChangedDialog(
-      BuildContext context, WishData wishData, bool curStatus, dynamic opResult) {
+  Future<bool?> _showDoneChangedDialog(BuildContext context, WishData wishData,
+      bool curStatus, dynamic opResult) {
     if (curStatus) {
       return _showDoneSureDialog(context, title: '确定要取消完成吗？');
     }
     final String? content;
     if (wishData.wishType == WishType.wish) {
       if (wishData.stepList?.isNotEmpty ?? false) {
-        var count = (opResult as List<bool>).where((element) => !element).length;
+        var count =
+            (opResult as List<bool>).where((element) => !element).length;
         if (count == 0) {
           content = null;
         } else {
@@ -237,9 +243,13 @@ class _OpPageViewState extends State<OpPageView> {
             widget.itemData.name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w700),
+            style: const TextStyle(
+                color: Colors.black, fontWeight: FontWeight.w700),
           ),
-          stretchModes: const [StretchMode.blurBackground, StretchMode.zoomBackground],
+          stretchModes: const [
+            StretchMode.blurBackground,
+            StretchMode.zoomBackground
+          ],
           expandedTitleScale: 24 / 20,
           background: SizedBox(
             child: Align(
@@ -282,7 +292,8 @@ class _OpPageViewState extends State<OpPageView> {
       if (stepResult?.isNotEmpty ?? false) {
         List<WishStep> stepList = [];
         for (var i = 0; i < widget.itemData.stepList!.length; i++) {
-          stepList.add(WishStep(widget.itemData.stepList![i].desc, stepResult![i]));
+          stepList
+              .add(WishStep(widget.itemData.stepList![i].desc, stepResult![i]));
         }
         return widget.itemData.copyWith(stepList: stepList);
       }
@@ -337,82 +348,6 @@ class _OpHistoryLayoutState extends State<_OpHistoryLayout> {
   }
 }
 
-class ItemWrapLabelRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool isLabelGray;
-
-  const ItemWrapLabelRow(
-      {super.key, required this.label, required this.value, this.isLabelGray = false});
-
-  @override
-  Widget build(BuildContext context) {
-    if (isLabelGray) {
-      return Row(
-        children: [
-          SizedBox(
-              width: labelWidth,
-              child:
-                  Text(label, style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 16))),
-          Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-        ],
-      );
-    } else {
-      return Row(
-        children: [
-          SizedBox(
-              width: labelWidth,
-              child:
-                  Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
-          Text(value, style: const TextStyle(fontSize: 16, color: Colors.grey)),
-        ],
-      );
-    }
-  }
-}
-
-class ItemWrap extends StatelessWidget {
-  final String itemLabel;
-  final Widget child;
-  final EdgeInsets padding;
-
-  const ItemWrap(
-      {super.key,
-      required this.child,
-      required this.itemLabel,
-      this.padding = const EdgeInsets.all(14)});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(children: [
-      Padding(
-        padding: const EdgeInsets.only(top: 14),
-        child: DottedBorder(
-          borderType: BorderType.RRect,
-          dashPattern: const [8, 4],
-          color: Colors.black,
-          radius: const Radius.circular(12),
-          padding: padding,
-          child: child,
-        ),
-      ),
-      Positioned(
-          left: 20,
-          top: 0,
-          child: Container(
-            color: Colors.white,
-            child: Text(
-              itemLabel,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ))
-    ]);
-  }
-}
-
 class TimeCard extends StatelessWidget {
   final WishData itemData;
 
@@ -433,13 +368,15 @@ class TimeCard extends StatelessWidget {
             const SizedBox(height: 6),
             ItemWrapLabelRow(
               label: '截止时间',
-              value: itemData.endTime == null ? '无期限' : getDate(itemData.endTime!),
+              value:
+                  itemData.endTime == null ? '无期限' : getDate(itemData.endTime!),
               isLabelGray: true,
             ),
             const SizedBox(height: 6),
             ItemWrapLabelRow(
               label: '已持续',
-              value: '${DateTime.now().difference(itemData.createdTime!).inDays + 1} 天',
+              value:
+                  '${DateTime.now().difference(itemData.createdTime!).inDays + 1} 天',
               isLabelGray: true,
             ),
           ],
@@ -532,7 +469,7 @@ class _OpCardState extends State<OpCard> {
     if (widget.itemData.wishType == WishType.repeat) {
       padding = const EdgeInsets.only(top: 14, right: 14, bottom: 4, left: 14);
     } else if (widget.itemData.wishType == WishType.checkIn) {
-      padding = const EdgeInsets.only(top: 14, right: 14, bottom: 0, left: 14);
+      padding = const EdgeInsets.only(top: 14, right: 14, bottom: 12, left: 14);
     } else {
       padding = const EdgeInsets.all(14);
     }
@@ -545,15 +482,16 @@ class _OpCardState extends State<OpCard> {
   }
 
   _handleDoneStep(int stepIndex) async {
-    var res =
-        await DatabaseHelper.instance.handleDoneStep(widget.itemData, _generateSteps(), stepIndex);
+    var res = await DatabaseHelper.instance
+        .handleDoneStep(widget.itemData, _generateSteps(), stepIndex);
     if (res > 0) {
       eventBus.fire(UpdateWishEvent(widget.index, widget.itemData.id!));
     }
   }
 
   _handleUpdateRepeat(int oldCount, int newCount) async {
-    var res = await DatabaseHelper.instance.handleUpdateRepeat(widget.itemData, oldCount, newCount);
+    var res = await DatabaseHelper.instance
+        .handleUpdateRepeat(widget.itemData, oldCount, newCount);
     if (res > 0) {
       eventBus.fire(UpdateWishEvent(widget.index, widget.itemData.id!));
     }
@@ -561,7 +499,8 @@ class _OpCardState extends State<OpCard> {
 
   Widget _buildContent() {
     if (widget.itemData.wishType == WishType.wish) {
-      if (widget.itemData.stepList == null || widget.itemData.stepList!.isEmpty) {
+      if (widget.itemData.stepList == null ||
+          widget.itemData.stepList!.isEmpty) {
         return const SizedBox(
             width: double.infinity,
             child: Text('未设置计划步骤，可点击右下角按钮、直接完成或取消完成心愿',
@@ -574,7 +513,8 @@ class _OpCardState extends State<OpCard> {
               .map((i, step) => MapEntry(
                   i,
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
                     child: RadioCheck(
                       initValue: step.done,
                       desc: step.desc,
@@ -592,13 +532,15 @@ class _OpCardState extends State<OpCard> {
     if (widget.itemData.wishType == WishType.repeat) {
       return Column(
         children: [
-          ItemWrapLabelRow(label: '目标次数', value: '${widget.itemData.repeatCount}次'),
+          ItemWrapLabelRow(
+              label: '目标次数', value: '${widget.itemData.repeatCount}次'),
           Row(
             children: [
               const SizedBox(
                   width: labelWidth,
-                  child:
-                      Text('已完成次数', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
+                  child: Text('已完成次数',
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w700))),
               Transform.scale(
                 scale: 0.9,
                 child: Transform.translate(
@@ -611,7 +553,8 @@ class _OpCardState extends State<OpCard> {
                       if (_countUpdateDebounce?.isActive ?? false) {
                         _countUpdateDebounce!.cancel();
                       }
-                      _countUpdateDebounce = Timer(const Duration(milliseconds: 500), () {
+                      _countUpdateDebounce =
+                          Timer(const Duration(milliseconds: 500), () {
                         _handleUpdateRepeat(_actualRepeatCount, value);
                         _actualRepeatCount = value;
                       });
@@ -644,7 +587,8 @@ class CheckInContent extends StatefulWidget {
   final WishData itemData;
   final int index;
 
-  const CheckInContent({super.key, required this.itemData, required this.index});
+  const CheckInContent(
+      {super.key, required this.itemData, required this.index});
 
   @override
   State<StatefulWidget> createState() => _CheckInContentState();
@@ -653,6 +597,7 @@ class CheckInContent extends StatefulWidget {
 class _CheckInContentState extends State<CheckInContent> {
   late int _preCheckInCount;
   late bool _todayCheckIn;
+  late bool _isPaused;
 
   _handleCheckIn() async {
     var res = await DatabaseHelper.instance.handleCheckIn(widget.itemData);
@@ -661,10 +606,19 @@ class _CheckInContentState extends State<CheckInContent> {
     }
   }
 
+  _handlePause(bool isPaused) async {
+    var res =
+        await DatabaseHelper.instance.handlePauseOp(widget.itemData, isPaused);
+    if (res > 0) {
+      eventBus.fire(UpdateWishEvent(widget.index, widget.itemData.id!));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    if (widget.itemData.checkedTimeList == null || widget.itemData.checkedTimeList!.isEmpty) {
+    if (widget.itemData.checkedTimeList == null ||
+        widget.itemData.checkedTimeList!.isEmpty) {
       _preCheckInCount = 0;
       _todayCheckIn = false;
     } else {
@@ -678,6 +632,7 @@ class _CheckInContentState extends State<CheckInContent> {
         _todayCheckIn = false;
       }
     }
+    _isPaused = widget.itemData.paused;
   }
 
   @override
@@ -692,32 +647,41 @@ class _CheckInContentState extends State<CheckInContent> {
 
     return Column(
       children: [
-        ItemWrapLabelRow(label: '打卡间隔', value: '每 ${widget.itemData.periodDays} 天一次'),
+        ItemWrapLabelRow(
+            label: '打卡间隔', value: '每 ${widget.itemData.periodDays} 天一次'),
         const SizedBox(
           height: 6,
         ),
-        ItemWrapLabelRow(label: '打卡时间', value: TimeUtils.getShowTime(widget.itemData.checkInTime!)),
+        ItemWrapLabelRow(
+            label: '打卡时间',
+            value: TimeUtils.getShowTime(widget.itemData.checkInTime!)),
         const SizedBox(
           height: 6,
         ),
-        ItemWrapLabelRow(label: '打卡次数', value: '${_preCheckInCount + (_todayCheckIn ? 1 : 0)} 次'),
+        ItemWrapLabelRow(
+            label: '打卡次数',
+            value: '${_preCheckInCount + (_todayCheckIn ? 1 : 0)} 次'),
         if (days != null) ...[
           const SizedBox(
             height: 6,
           ),
           ItemWrapLabelRow(
-              label: '上次打卡', value: _getLatestCheckIn(days, widget.itemData.periodDays!)),
+              label: '上次打卡',
+              value: _getLatestCheckIn(days, widget.itemData.periodDays!)),
         ],
-        Transform.translate(
-          offset: const Offset(0, -6),
+        SizedBox(
+          height: 34,
           child: Row(
             children: [
               const SizedBox(
                   width: labelWidth,
-                  child: Text('今日打卡', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
+                  child: Text('今日打卡',
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w700))),
               DoneSwitch(
-                openText: '未打卡',
-                closeText: '已打卡',
+                noText: '未打卡',
+                yesText: '已打卡',
+                contentPadding: 0,
                 initValue: _todayCheckIn,
                 textSize: 16,
                 switchScale: 1,
@@ -728,6 +692,36 @@ class _CheckInContentState extends State<CheckInContent> {
                   _handleCheckIn();
                 },
                 toggleable: (value) => !value,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 25,
+          child: Row(
+            children: [
+              const SizedBox(
+                  width: labelWidth,
+                  child: Tooltip(
+                    message: '暂停后，将不会再提醒打卡',
+                    child: Text('暂停打卡',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w700)),
+                  )),
+              DoneSwitch(
+                noText: '已暂停',
+                yesText: '进行中',
+                contentPadding: 0,
+                initValue: !_isPaused,
+                textSize: 16,
+                switchScale: 1,
+                onChanged: (v) {
+                  setState(() {
+                    _isPaused = !v;
+                    _handlePause(_isPaused);
+                  });
+                },
+                // toggleable: (value) => !value,
               ),
             ],
           ),

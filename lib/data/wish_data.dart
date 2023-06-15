@@ -80,11 +80,12 @@ class WishData {
   final String? note;
   final DateTime? endTime; // int
   final bool done; // int 1 or 0
+  final bool paused;
   final List<WishStep>? stepList; // string json
   final bool isSecret;
 
   final TimeOfDay? checkInTime; //
-  final int? periodDays;// int
+  final int? periodDays; // int
   final List<DateTime>? checkedTimeList; // int
 
   final int? repeatCount;
@@ -101,6 +102,7 @@ class WishData {
     this.note,
     this.endTime,
     this.done = false,
+    this.paused = false,
     this.stepList,
     this.checkInTime,
     this.periodDays,
@@ -120,6 +122,7 @@ class WishData {
     String? note,
     DateTime? endTime,
     bool? done,
+    bool? paused,
     List<WishStep>? stepList,
     TimeOfDay? checkInTime,
     int? periodDays,
@@ -138,6 +141,7 @@ class WishData {
       note: note ?? this.note,
       endTime: endTime ?? this.endTime,
       done: done ?? this.done,
+      paused: paused ?? this.paused,
       stepList: stepList ?? this.stepList,
       checkInTime: checkInTime ?? this.checkInTime,
       periodDays: periodDays ?? this.periodDays,
@@ -161,12 +165,15 @@ class WishData {
       DatabaseHelper.fieldPeriodDays: periodDays,
       DatabaseHelper.fieldEndTime: TimeUtils.getDbTime(endTime),
       DatabaseHelper.fieldDone: done ? 1 : 0,
-      DatabaseHelper.fieldStepList:
-          stepList == null ? null : json.encode(stepList?.map((e) => e.toMap()).toList()),
+      DatabaseHelper.fieldPaused: paused ? 1 : 0,
+      DatabaseHelper.fieldStepList: stepList == null
+          ? null
+          : json.encode(stepList?.map((e) => e.toMap()).toList()),
       DatabaseHelper.fieldIsSecret: isSecret ? 1 : 0,
       DatabaseHelper.fieldCheckedTimeList: checkedTimeList == null
           ? null
-          : json.encode(checkedTimeList?.map((e) => TimeUtils.getDbTime(e)).toList()),
+          : json.encode(
+              checkedTimeList?.map((e) => TimeUtils.getDbTime(e)).toList()),
       DatabaseHelper.fieldRepeatCount: repeatCount,
       DatabaseHelper.fieldCreatedTime: TimeUtils.getDbTime(createdTime),
       DatabaseHelper.fieldModifiedTime: TimeUtils.getDbTime(modifiedTime),
@@ -222,6 +229,7 @@ class WishData {
         diffCheckedTimeList(wishData.checkedTimeList, checkedTimeList) ||
         wishData.endTime != endTime ||
         wishData.done != done ||
+        wishData.paused != paused ||
         diffSteps(wishData.stepList, stepList) ||
         wishData.repeatCount != repeatCount ||
         wishData.actualRepeatCount != actualRepeatCount ||
@@ -241,9 +249,10 @@ class WishData {
       return null;
     }
     List<dynamic> list = jsonDecode(checkedTimeList);
-    return list.map((e) => DateTime.fromMillisecondsSinceEpoch(e * 1000)).toList();
+    return list
+        .map((e) => DateTime.fromMillisecondsSinceEpoch(e * 1000))
+        .toList();
   }
-
 
   factory WishData.fromMap(Map<String, dynamic> map) {
     return WishData(
@@ -252,18 +261,21 @@ class WishData {
       wishType: WishType.values[map[DatabaseHelper.fieldWishType]],
       colorType: ColorType.values[map[DatabaseHelper.fieldColorType]],
       note: map[DatabaseHelper.fieldNote],
-      checkInTime: TimeUtils.fromCheckInTime(map[DatabaseHelper.fieldCheckInTime]),
+      checkInTime:
+          TimeUtils.fromCheckInTime(map[DatabaseHelper.fieldCheckInTime]),
       periodDays: map[DatabaseHelper.fieldPeriodDays],
       checkedTimeList: map[DatabaseHelper.fieldCheckedTimeList] == null
           ? null
           : _parseCheckedTimeList(map[DatabaseHelper.fieldCheckedTimeList]),
       endTime: TimeUtils.parseDbTime(map[DatabaseHelper.fieldEndTime]),
       done: map[DatabaseHelper.fieldDone] == 1,
+      paused: map[DatabaseHelper.fieldPaused] == 1,
       stepList: _parseStepList(map[DatabaseHelper.fieldStepList]),
       repeatCount: map[DatabaseHelper.fieldRepeatCount],
       actualRepeatCount: map[DatabaseHelper.fieldActualRepeatCount],
       createdTime: TimeUtils.parseDbTime(map[DatabaseHelper.fieldCreatedTime]),
-      modifiedTime: TimeUtils.parseDbTime(map[DatabaseHelper.fieldModifiedTime]),
+      modifiedTime:
+          TimeUtils.parseDbTime(map[DatabaseHelper.fieldModifiedTime]),
     );
   }
 }
