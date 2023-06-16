@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:wish/data/wish_data.dart';
 import 'package:wish/data/wish_op.dart';
 import 'package:wish/data/wish_review.dart';
@@ -450,7 +451,7 @@ class DatabaseHelper {
     print('---get2:${DateTime.now().millisecondsSinceEpoch - time2}');
   }
 
-  Future<Pair<List<WishData>, List<WishOp>>?> getReviewInfo(DateTime? fromTime, DateTime? toTime) async {
+  Future<Pair<List<WishData>, List<WishOp>>?> getReviewInfo(DateTimeRange? range) async {
     final db = await database;
     try {
       return await db.transaction((txn) async {
@@ -460,11 +461,11 @@ class DatabaseHelper {
         // fromTime到toTime之间的操作、排除掉edit
         final String where;
         final List<int?> whereArgs;
-        if (fromTime != null && toTime != null) {
+        if (range != null) {
           where = '$optionTime >= ? AND $optionTime <= ? AND $optionType != ?';
           whereArgs = [
-            TimeUtils.getTimeStamp(fromTime),
-            TimeUtils.getTimeStamp(toTime),
+            TimeUtils.getZeroTime(range.start),
+            TimeUtils.getLatestTime(range.end),
             WishOpType.edit.index,
           ];
         } else {

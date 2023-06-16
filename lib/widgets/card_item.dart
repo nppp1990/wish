@@ -16,6 +16,44 @@ class ItemWrap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget labelView;
+    if (onLabelPressed == null) {
+      labelView =  Positioned(
+          left: 20,
+          top: 0,
+          child: Container(
+            color: Colors.white,
+            child: Text(
+              itemLabel,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ));
+    } else {
+      labelView =  Positioned(
+          left: 20,
+          top: -5,
+          child: Container(
+            color: Colors.white,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: onLabelPressed,
+              child: Text(
+                itemLabel,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ));
+    }
+
     return Stack(children: [
       Padding(
         padding: const EdgeInsets.only(top: 14),
@@ -28,26 +66,7 @@ class ItemWrap extends StatelessWidget {
           child: child,
         ),
       ),
-      Positioned(
-          left: 20,
-          top: -5,
-          child: Container(
-            color: Colors.white,
-            child: TextButton(
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              onPressed: () {},
-              child: Text(
-                itemLabel,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ))
+      labelView,
     ]);
   }
 }

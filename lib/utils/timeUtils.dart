@@ -11,6 +11,20 @@ class TimeUtils {
     return dateTime.millisecondsSinceEpoch ~/ 1000;
   }
 
+  static int getZeroTime(DateTime dateTime) {
+    // 当天0点的时间
+    final DateTime zeroTime = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    return zeroTime.millisecondsSinceEpoch ~/ 1000;
+  }
+
+  static int getLatestTime(DateTime dateTime) {
+    // 当天0点的时间
+    final DateTime zeroTime = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    // 23:59:59
+    final DateTime endTime = zeroTime.add(const Duration(days: 1)).subtract(const Duration(seconds: 1));
+    return endTime.millisecondsSinceEpoch ~/ 1000;
+  }
+
   static DateTime? parseDbTime(int? time) {
     if (time == null) {
       return null;

@@ -5,6 +5,7 @@ import 'package:pie_chart/pie_chart.dart';
 import 'package:wish/data/data_base_helper.dart';
 import 'package:wish/data/wish_op.dart';
 import 'package:wish/data/wish_review.dart';
+import 'package:wish/utils/timeUtils.dart';
 import 'package:wish/widgets/card_item.dart';
 import 'package:wish/widgets/common/animation_layout.dart';
 import 'package:wish/widgets/common/wish_loading.dart';
@@ -32,8 +33,8 @@ class _ReviewPageViewState extends State<ReviewPageView> {
   WishLoadingType _loadingType = WishLoadingType.loading;
   List<WishOp>? _opList;
   WishStatics? _wishStatics;
-
-  // late ScrollController _controller;
+  late TimeType _timeType = TimeType.lastWeek;
+  DateTimeRange? _dateTimeRange;
 
   @override
   void initState() {
@@ -41,13 +42,31 @@ class _ReviewPageViewState extends State<ReviewPageView> {
     loadData();
   }
 
+  get _loadingRange {
+    switch (_timeType) {
+      case TimeType.lastWeek:
+        return DateTimeRange(
+            start: DateTime.now().subtract(const Duration(days: 7)),
+            end: DateTime.now());
+      case TimeType.lastMonth:
+        return DateTimeRange(
+            start: DateTime.now().subtract(const Duration(days: 30)),
+            end: DateTime.now());
+      case TimeType.today:
+        return DateTimeRange(
+            start: DateTime.now(),
+            end: DateTime.now());
+      case TimeType.custom:
+        return _dateTimeRange;
+    }
+  }
+
   loadData() async {
     setState(() {
       _loadingType = WishLoadingType.loading;
     });
 
-    var res = await DatabaseHelper.instance.getReviewInfo(null, null);
-    print('----res');
+    var res = await DatabaseHelper.instance.getReviewInfo(_loadingRange);
     if (res == null) {
       setState(() {
         _loadingType = WishLoadingType.error;
@@ -80,9 +99,14 @@ class _ReviewPageViewState extends State<ReviewPageView> {
           SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverToBoxAdapter(
-                child: ItemWrap(itemLabel: '过去一周', onLabelPressed: () {}, child: _buildChart(_opList!)),
+                child: ItemWrap(
+                    itemLabel: getLabelShow(_timeType, _dateTimeRange, false),
+                    onLabelPressed: () {
+                      _showTimeDialog(_timeType);
+                    },
+                    child: _buildChart(_opList!)),
               )),
-        if (_loadingType == WishLoadingType.success)
+        if (_loadingType == WishLoadingType.success && (_opList?.isNotEmpty ?? false))
           SliverPadding(
             padding: const EdgeInsets.all(20),
             sliver: OpList(
@@ -169,9 +193,13 @@ class _ReviewPageViewState extends State<ReviewPageView> {
       }
     }
 
-    int doneCount = doneMap.values.where((element) => element).length;
+    int doneCount = doneMap.values
+        .where((element) => element)
+        .length;
     int unDoneCount = doneMap.length - doneCount;
-    int pausedCount = pausedMap.values.where((element) => element).length;
+    int pausedCount = pausedMap.values
+        .where((element) => element)
+        .length;
 
     final dataMap = <String, double>{
       'create': createCount.toDouble(),
@@ -205,7 +233,10 @@ class _ReviewPageViewState extends State<ReviewPageView> {
         dataMap: dataMap,
         animationDuration: const Duration(milliseconds: 800),
         chartLegendSpacing: 40,
-        chartRadius: math.min(MediaQuery.of(context).size.width / 3.2, 300),
+        chartRadius: math.min(MediaQuery
+            .of(context)
+            .size
+            .width / 3.2, 300),
         colorList: colorList,
         initialAngleInDegree: 0,
         chartType: ChartType.ring,
@@ -222,21 +253,156 @@ class _ReviewPageViewState extends State<ReviewPageView> {
           ),
         ),
         chartValuesOptions: const ChartValuesOptions(
-          // showChartValueBackground: _showChartValueBackground,
-          // showChartValues: _showChartValues,
           showChartValuesInPercentage: true,
           showChartValuesOutside: true,
         ),
         ringStrokeWidth: 32,
-        emptyColor: Colors.grey,
-        // gradientList: _showGradientColors ? gradientList : null,
-        emptyColorGradient: const [
-          Color(0xff6c5ce7),
-          Colors.blue,
-        ],
+        emptyColor: const Color(0xff545454),
         baseChartColor: Colors.transparent,
       ),
     );
+  }
+
+  String getLabelShow(TimeType timeType, DateTimeRange? range, bool showPrefix) {
+    if (timeType == TimeType.custom && range != null) {
+      if (showPrefix) {
+        return '自定义(${TimeUtils.getShowDate(range.start)} ~ ${TimeUtils.getShowDate(range.end)})';
+      } else {
+        return '${TimeUtils.getShowDate(range.start)} ~ ${TimeUtils.getShowDate(range.end)}';
+      }
+    } else {
+      return timeType.toString();
+    }
+  }
+
+  _showTimeDialog(TimeType curType) async {
+    buildItem(TimeType itemType, bool selected) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          Navigator.pop(context, itemType);
+        },
+        child: SizedBox(
+          height: 40,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(getLabelShow(itemType, _dateTimeRange, true),
+                  style: TextStyle(fontSize: 15, fontWeight: selected ? FontWeight.w700 : FontWeight.w500)),
+            ],
+          ),
+        ),
+      );
+    }
+
+    var res = await showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return Container(
+            margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 3),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), color: Colors.white),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    '请选择时间段',
+                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
+                  ),
+                ),
+                buildItem(TimeType.today, curType == TimeType.today),
+                const Divider(height: 1, thickness: 1, color: Color(0xfff0f0f0)),
+                buildItem(TimeType.lastWeek, curType == TimeType.lastWeek),
+                const Divider(height: 1, thickness: 1, color: Color(0xfff0f0f0)),
+                buildItem(TimeType.lastMonth, curType == TimeType.lastMonth),
+                const Divider(height: 1, thickness: 1, color: Color(0xfff0f0f0)),
+                buildItem(TimeType.custom, curType == TimeType.custom),
+              ],
+            ),
+          );
+        });
+    if (res == TimeType.custom) {
+      DateTimeRange? range = await _showCustomTimeDialog(_dateTimeRange);
+      if (range == null) {
+        return;
+      }
+      if (range == _dateTimeRange) {
+        return;
+      }
+      setState(() {
+        _timeType = TimeType.custom;
+        _dateTimeRange = range;
+        loadData();
+      });
+    } else {
+      if (_timeType == res) {
+        return;
+      }
+      setState(() {
+        _dateTimeRange = null;
+        _timeType = res;
+        loadData();
+      });
+    }
+  }
+
+  _showCustomTimeDialog(DateTimeRange? dateTimeRange) async {
+    DateTime firstDate = DateTime(2023, 6, 10);
+    DateTime lastDate = DateTime.now();
+    return await showDateRangePicker(
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            brightness: Brightness.light,
+            colorScheme: const ColorScheme.light(primary: Colors.black),
+            buttonTheme: const ButtonThemeData(textTheme: ButtonTextTheme.primary),
+          ),
+          child: child!,
+        );
+      },
+      context: context,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      initialDateRange: dateTimeRange,
+      // initialDateRange: DateTimeRange(
+      //   start: start,
+      //   end: end,
+      // ),
+      helpText: '选择时间段',
+      cancelText: '取消',
+      confirmText: '确定',
+      saveText: "确定",
+      // fieldEndLabelText: '结束时间',
+      // fieldStartLabelText: '开始时间',
+      fieldStartHintText: '开始时间',
+      fieldEndHintText: '结束时间',
+    );
+  }
+}
+
+enum TimeType {
+  today,
+  lastWeek,
+  lastMonth,
+  custom;
+
+  @override
+  toString() {
+    switch (this) {
+      case TimeType.today:
+        return '今天';
+      case TimeType.lastWeek:
+        return '最近一周';
+      case TimeType.lastMonth:
+        return '最近一月';
+      case TimeType.custom:
+        return '自定义';
+    }
   }
 }
 
@@ -250,7 +416,7 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ItemWrap(
-      itemLabel: '数据概览',
+      itemLabel: '所有星愿概览',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -356,7 +522,10 @@ class TestPageState extends State<TestPage> {
       dataMap: dataMap,
       animationDuration: const Duration(milliseconds: 800),
       chartLegendSpacing: _chartLegendSpacing!,
-      chartRadius: math.min(MediaQuery.of(context).size.width / 3.2, 300),
+      chartRadius: math.min(MediaQuery
+          .of(context)
+          .size
+          .width / 3.2, 300),
       colorList: colorList,
       initialAngleInDegree: 0,
       chartType: _chartType!,
@@ -403,10 +572,14 @@ class TestPageState extends State<TestPage> {
             ListTile(
               title: Text(
                 'Pie Chart Options'.toUpperCase(),
-                style: Theme.of(context).textTheme.overline!.copyWith(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .overline!
+                    .copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             ListTile(
@@ -456,10 +629,10 @@ class TestPageState extends State<TestPage> {
                   ],
                   onChanged: (_chartType == ChartType.ring)
                       ? (val) {
-                          setState(() {
-                            _ringStrokeWidth = val;
-                          });
-                        }
+                    setState(() {
+                      _ringStrokeWidth = val;
+                    });
+                  }
                       : null,
                 ),
               ),
@@ -509,10 +682,14 @@ class TestPageState extends State<TestPage> {
             ListTile(
               title: Text(
                 'Legend Options'.toUpperCase(),
-                style: Theme.of(context).textTheme.overline!.copyWith(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .overline!
+                    .copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             SwitchListTile(
@@ -601,10 +778,14 @@ class TestPageState extends State<TestPage> {
             ListTile(
               title: Text(
                 'Chart values Options'.toUpperCase(),
-                style: Theme.of(context).textTheme.overline!.copyWith(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .overline!
+                    .copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             SwitchListTile(
