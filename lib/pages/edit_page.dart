@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:wish/data/data_base_helper.dart';
 import 'package:wish/data/event_manager.dart';
 import 'package:wish/data/wish_data.dart';
+import 'package:wish/themes/gallery_theme_data.dart';
 import 'package:wish/utils/dialogs.dart';
 import 'package:wish/utils/example.dart';
 import 'package:wish/utils/struct.dart';
@@ -36,8 +37,7 @@ class EditPage extends StatelessWidget {
   final PageFrom? from;
   final int? index;
 
-  EditPage(
-      {super.key, required this.pageType, this.wishData, this.index, this.from, this.wishType});
+  EditPage({super.key, required this.pageType, this.wishData, this.index, this.from, this.wishType});
 
   @override
   Widget build(BuildContext context) {
@@ -73,8 +73,7 @@ class EditPage extends StatelessWidget {
           },
           icon: const Tooltip(message: '删除', child: Icon(Icons.delete_outline)),
         ),
-        IconButton(
-            onPressed: save, icon: const Tooltip(message: '保存', child: Icon(Icons.save_outlined)))
+        IconButton(onPressed: save, icon: const Tooltip(message: '保存', child: Icon(Icons.save_outlined)))
       ];
     }
 
@@ -86,7 +85,6 @@ class EditPage extends StatelessWidget {
         floatingActionButton: showActionBtn
             ? FloatingActionButton(
                 onPressed: save,
-                backgroundColor: Colors.black,
                 child: const Icon(
                   size: 30,
                   Icons.save,
@@ -191,8 +189,7 @@ class EditPageView extends StatefulWidget {
   final PageFrom? pageFrom;
   final WishPageType pageType;
 
-  const EditPageView(
-      {super.key, this.index, this.wishData, required this.pageType, this.pageFrom, this.wishType});
+  const EditPageView({super.key, this.index, this.wishData, required this.pageType, this.pageFrom, this.wishType});
 
   @override
   State<StatefulWidget> createState() => _EditPageViewState();
@@ -211,8 +208,7 @@ class _EditPageViewState extends State<EditPageView> {
   @override
   void initState() {
     super.initState();
-    _currentType =
-        widget.wishType?.index ?? (widget.wishData?.wishType.index ?? WishType.wish.index);
+    _currentType = widget.wishType?.index ?? (widget.wishData?.wishType.index ?? WishType.wish.index);
   }
 
   @override
@@ -255,8 +251,7 @@ class _EditPageViewState extends State<EditPageView> {
                   } else if (_currentType == WishType.repeat.index) {
                     _switchKey.currentState?.refresh((template as RepeatWishExample).repeatCount);
                   } else {
-                    _periodDaysKey.currentState
-                        ?.refresh((template as CheckInWishExample).periodDays);
+                    _periodDaysKey.currentState?.refresh((template as CheckInWishExample).periodDays);
                   }
                 },
                 showRadio: isCreateMode && widget.wishType == null,
@@ -333,8 +328,7 @@ class _EditPageViewState extends State<EditPageView> {
 
     if (_currentType == WishType.wish.index) {
       // 步骤列表的内容不能为空
-      return _stepLayoutKey.currentState?.getResult().every((element) => element.desc.isNotEmpty) ??
-          true;
+      return _stepLayoutKey.currentState?.getResult().every((element) => element.desc.isNotEmpty) ?? true;
     }
 
     if (_currentType == WishType.checkIn.index) {
@@ -420,8 +414,7 @@ class NameInput extends StatefulWidget {
   State<StatefulWidget> createState() => _NameInputState();
 }
 
-class _NameInputState extends State<NameInput>
-    with ResultMixin<Pair<String, ColorType>>, RefreshState<String> {
+class _NameInputState extends State<NameInput> with ResultMixin<Pair<String, ColorType>>, RefreshState<String> {
   late TextEditingController _nameController;
   final GlobalKey<ColorPickerState> _colorPickerKey = GlobalKey();
 
@@ -433,6 +426,8 @@ class _NameInputState extends State<NameInput>
 
   @override
   Widget build(BuildContext context) {
+    bool isLight = Theme.of(context).brightness == Brightness.light;
+    var colorScheme = Theme.of(context).colorScheme;
     return Row(
       children: [
         Expanded(
@@ -441,27 +436,20 @@ class _NameInputState extends State<NameInput>
             // 设置padding
             controller: _nameController,
             decoration: InputDecoration(
-              labelStyle: TextStyle(color: labelColor),
-              hintStyle: const TextStyle(color: hintColor),
+              labelStyle: TextStyle(color: colorScheme.primary.withOpacity(0.6)),
+              hintStyle: TextStyle(color: isLight ? Colors.grey : const Color(0XFF808080)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              errorBorder: const OutlineInputBorder(
+              focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   width: 3,
-                  color: Colors.red,
+                  color: isLight ? colorScheme.primary : GalleryThemeData.darkGreenBorderColor,
                 ),
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-              ),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(
-                  width: 3,
-                  color: Colors.black,
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   width: 2,
-                  color: Colors.black.withOpacity(0.6),
+                  color: colorScheme.primary.withOpacity(0.6),
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
               ),
@@ -472,9 +460,9 @@ class _NameInputState extends State<NameInput>
                           _nameController.clear();
                         });
                       },
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.clear,
-                        color: Colors.black,
+                        color: colorScheme.primary,
                         size: 24,
                       ),
                     )
@@ -536,6 +524,8 @@ class DescInput extends StatelessWidget with ResultMixin<String> {
 
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
+    var isLight = Theme.of(context).brightness == Brightness.light;
     return TextField(
       controller: _descController,
       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
@@ -543,20 +533,20 @@ class DescInput extends StatelessWidget with ResultMixin<String> {
       maxLength: 200,
       keyboardType: TextInputType.multiline,
       decoration: InputDecoration(
-        labelStyle: TextStyle(color: labelColor),
-        hintStyle: const TextStyle(color: hintColor),
+        labelStyle: TextStyle(color: colorScheme.primary.withOpacity(0.6)),
+        hintStyle: TextStyle(color: isLight ? Colors.grey : const Color(0XFF808080)),
         contentPadding: const EdgeInsets.all(16),
-        focusedBorder: const OutlineInputBorder(
+        focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
             width: 3,
-            color: Colors.black,
+            color: isLight ? colorScheme.primary : GalleryThemeData.darkGreenBorderColor,
           ),
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
             width: 2,
-            color: Colors.black.withOpacity(0.6),
+            color: colorScheme.primary.withOpacity(0.6),
           ),
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
@@ -606,10 +596,7 @@ class _StepLayoutState extends State<StepLayout>
 
   @override
   Widget build(BuildContext context) {
-    print('-----build-----eee');
-    for (int i = 0; i < itemSize; i++) {
-      print('-----build-----${_currentStep[i].desc}');
-    }
+    var colorScheme = Theme.of(context).colorScheme;
     final content = Column(
       children: [
         Row(
@@ -617,8 +604,7 @@ class _StepLayoutState extends State<StepLayout>
             const Expanded(child: Label(text: '做好规划、一步一步完成的心愿')),
             OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(width: 2, color: Colors.black),
-                  foregroundColor: Colors.black,
+                  side: BorderSide(width: 2, color: colorScheme.primary),
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(6)),
                   ),
@@ -633,9 +619,6 @@ class _StepLayoutState extends State<StepLayout>
                     } else {
                       _currentStep.insert(focusIndex + 1, WishStep('', false));
                       _keyList.insert(focusIndex + 1, GlobalKey());
-                    }
-                    for (int i = 0; i < itemSize; i++) {
-                      print('----???----${_currentStep[i].desc}');
                     }
                   });
                 },
@@ -657,8 +640,7 @@ class _StepLayoutState extends State<StepLayout>
             },
             canDelete: () {
               if (_currentStep[i].done) {
-                return DialogUtils.showModal(context, '删除', '取消',
-                    content: '删除已完成的步骤无法恢复，确定删除吗？', yesColor: Colors.red);
+                return DialogUtils.showModal(context, '删除', '取消', content: '删除已完成的步骤无法恢复，确定删除吗？', yesColor: Colors.red);
               }
               return Future.value(true);
             },
@@ -715,8 +697,7 @@ class StepInput extends StatefulWidget {
   State<StatefulWidget> createState() => _StepInputState();
 }
 
-class _StepInputState extends State<StepInput>
-    with SingleTickerProviderStateMixin, ResultMixin<WishStep> {
+class _StepInputState extends State<StepInput> with SingleTickerProviderStateMixin, ResultMixin<WishStep> {
   late AnimationController _controller;
   late FocusNode _focusNode;
   late TextEditingController _textEditingController;
@@ -753,6 +734,7 @@ class _StepInputState extends State<StepInput>
 
   @override
   Widget build(BuildContext context) {
+    var colorTheme = Theme.of(context).colorScheme;
     return SizeTransition(
         sizeFactor: _controller,
         axis: Axis.vertical,
@@ -763,16 +745,14 @@ class _StepInputState extends State<StepInput>
             children: [
               Padding(
                 padding: const EdgeInsets.only(right: 12, bottom: 2),
-                child: Text('${widget.step}.',
-                    style: const TextStyle(
-                        fontSize: 15, color: Colors.black, fontWeight: FontWeight.w900)),
+                child: Text('${widget.step}.', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
               ),
               Expanded(
                   child: TextField(
                 controller: _textEditingController,
                 focusNode: _focusNode,
                 style: TextStyle(
-                  color: widget.done ? Colors.black38 : Colors.black,
+                  color: widget.done ? colorTheme.primary.withOpacity(0.38) : colorTheme.primary,
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
                   decoration: widget.done ? TextDecoration.lineThrough : null,
@@ -782,13 +762,13 @@ class _StepInputState extends State<StepInput>
                 decoration: InputDecoration(
                   hintStyle: const TextStyle(color: hintColor),
                   enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black.withOpacity(0.6), width: 2),
+                    borderSide: BorderSide(color: colorTheme.primary.withOpacity(0.6), width: 2),
                   ),
-                  border: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
+                  border: UnderlineInputBorder(
+                    borderSide: BorderSide(color: colorTheme.primary),
                   ),
-                  focusedBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black, width: 2),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: colorTheme.primary, width: 2),
                   ),
                   contentPadding: const EdgeInsets.only(bottom: 4, left: 2, right: 2),
                   hintText: '请输入步骤',
@@ -808,9 +788,9 @@ class _StepInputState extends State<StepInput>
                   }
                   _controller.reverse(from: 1);
                 },
-                icon: const Icon(
+                icon: Icon(
                   Icons.delete_forever_outlined,
-                  color: Colors.black,
+                  color: colorTheme.primary,
                   size: 24,
                 ),
               )

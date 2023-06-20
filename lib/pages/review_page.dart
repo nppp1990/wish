@@ -119,6 +119,7 @@ class _ReviewPageViewState extends State<ReviewPageView> {
   }
 
   Widget _buildSliverAppBar(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
     return SliverAppBar(
         expandedHeight: 160,
         elevation: 5,
@@ -136,7 +137,7 @@ class _ReviewPageViewState extends State<ReviewPageView> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: constraints.maxHeight > 90 ? Colors.white : Colors.black,
+                  color: constraints.maxHeight > 90 ? colorScheme.secondary : colorScheme.primary,
                 ),
               );
             },
@@ -217,10 +218,12 @@ class _ReviewPageViewState extends State<ReviewPageView> {
       'delete': '删除 $deleteCount',
     };
 
+    bool isLight = Theme.of(context).brightness == Brightness.light;
+    var colorScheme = Theme.of(context).colorScheme;
     final colorList = <Color>[
-      const Color(0xDD000000),
+      colorScheme.primary.withOpacity(0.86),
       Colors.green,
-      const Color(0x1F000000),
+      colorScheme.primary.withOpacity(0.12),
       Colors.yellow,
       Colors.red,
     ];

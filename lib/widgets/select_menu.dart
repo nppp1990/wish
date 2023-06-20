@@ -47,6 +47,7 @@ class _SelectRadioGroupState extends State<SelectRadioGroup> {
 
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       if (widget.showRadio)
         Row(
@@ -58,7 +59,7 @@ class _SelectRadioGroupState extends State<SelectRadioGroup> {
                     Transform.scale(
                       scale: 1.2,
                       child: Radio(
-                        activeColor: Colors.black,
+                        activeColor: colorScheme.primary,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         value: index,
                         groupValue: _currentIndex,
@@ -75,7 +76,7 @@ class _SelectRadioGroupState extends State<SelectRadioGroup> {
                         widget.items[index].name,
                         style: TextStyle(
                             fontSize: 16,
-                            color: Colors.black.withOpacity(_currentIndex == index ? 1 : 0.6),
+                            color: colorScheme.primary.withOpacity(_currentIndex == index ? 1 : 0.6),
                             fontWeight: _currentIndex == index ? FontWeight.w900 : FontWeight.w600),
                       ),
                     )
@@ -122,8 +123,7 @@ class _RefreshTextState extends State<_RefreshText> with SingleTickerProviderSta
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         setState(() {
-          _randomTemplate = ExampleGenerate.generateByIndex(WishType.values[widget.radioIndex],
-              lastIndex: _lastIndex);
+          _randomTemplate = ExampleGenerate.generateByIndex(WishType.values[widget.radioIndex], lastIndex: _lastIndex);
           _lastIndex = _randomTemplate.first;
           _showText = _randomTemplate.second.title;
         });
@@ -151,6 +151,7 @@ class _RefreshTextState extends State<_RefreshText> with SingleTickerProviderSta
 
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
       TextButton(
         style: TextButton.styleFrom(
@@ -161,8 +162,7 @@ class _RefreshTextState extends State<_RefreshText> with SingleTickerProviderSta
         onPressed: () {
           widget.onLabelClicked.call(_randomTemplate.second);
         },
-        child: Text('例如：$_showText',
-            style: TextStyle(color: Colors.black.withOpacity(0.6), fontSize: 14)),
+        child: Text('例如：$_showText', style: TextStyle(color: colorScheme.primary.withOpacity(0.6), fontSize: 14)),
       ),
       const SizedBox(
         width: 2,
@@ -179,7 +179,7 @@ class _RefreshTextState extends State<_RefreshText> with SingleTickerProviderSta
               child: Icon(
                 Icons.refresh,
                 size: 16,
-                color: Colors.black.withOpacity(0.6),
+                color: colorScheme.primary.withOpacity(0.6),
               ),
             ),
           )),

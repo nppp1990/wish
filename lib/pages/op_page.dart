@@ -5,7 +5,7 @@ import 'package:wish/data/data_base_helper.dart';
 import 'package:wish/data/event_manager.dart';
 import 'package:wish/data/wish_data.dart';
 import 'package:wish/data/wish_op.dart';
-import 'package:wish/edit_page.dart';
+import 'package:wish/pages/edit_page.dart';
 import 'package:wish/router/router_utils.dart';
 import 'package:wish/utils/timeUtils.dart';
 import 'package:wish/widgets/card_item.dart';
@@ -243,8 +243,7 @@ class _OpPageViewState extends State<OpPageView> {
             widget.itemData.name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-                color: Colors.black, fontWeight: FontWeight.w700),
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
           stretchModes: const [
             StretchMode.blurBackground,

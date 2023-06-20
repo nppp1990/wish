@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 class DialogUtils {
   DialogUtils._();
 
-  static void showToast(BuildContext context, String msg,
-      {Duration duration = const Duration(milliseconds: 500)}) {
+  static void showToast(BuildContext context, String msg, {Duration duration = const Duration(milliseconds: 500)}) {
+    var primaryColor = Theme.of(context).colorScheme.primary;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -18,7 +18,10 @@ class DialogUtils {
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 3),
-            child: Text(msg),
+            child: Text(
+              msg,
+              style: TextStyle(color: primaryColor),
+            ),
           )
         ],
       ),

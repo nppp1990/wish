@@ -38,8 +38,9 @@ class OpItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
     final showName = option?.showName ?? false;
-    final lineColor = Colors.black.withOpacity(0.2);
+    final lineColor = colorScheme.primary.withOpacity(0.2);
     final subTitlePair = op.getShowTitle2();
     final double itemHeight;
     if (subTitlePair == null) {
@@ -69,7 +70,7 @@ class OpItem extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: lineColor, width: 1),
                 ),
-                child: _buildIcon(op.opType, 16),
+                child: _buildIcon(colorScheme, op.opType, 16),
               ),
               Expanded(
                 child: Container(
@@ -98,7 +99,7 @@ class OpItem extends StatelessWidget {
                   ),
                   Text(
                     op.getShowTime(),
-                    style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.6)),
+                    style: TextStyle(fontSize: 14, color: colorScheme.primary.withOpacity(0.6)),
                   ),
                 ],
               ),
@@ -110,17 +111,16 @@ class OpItem extends StatelessWidget {
               if (subTitle != null && subTitle.isNotEmpty)
                 RichText(
                   text: TextSpan(
-                      style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.6)),
+                      style: TextStyle(fontSize: 14, color: colorScheme.primary.withOpacity(0.6)),
                       children: subTitle
                           .map((editDesc) => TextSpan(
                                 text: editDesc.value,
                                 style: TextStyle(
-                                  color:
-                                      editDesc.color ?? (editDesc.isKey ? Colors.black : Colors.black.withOpacity(0.6)),
+                                  color: editDesc.color ??
+                                      (editDesc.isKey ? colorScheme.primary : colorScheme.primary.withOpacity(0.6)),
                                 ),
                               ))
                           .toList()),
-                  // style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.6)),
                 )
             ],
           )),
@@ -129,7 +129,7 @@ class OpItem extends StatelessWidget {
     );
   }
 
-  Widget _buildIcon(WishOpType type, double size) {
+  Widget _buildIcon(ColorScheme colorScheme, WishOpType type, double size) {
     final IconData icon;
     switch (type) {
       case WishOpType.create:
@@ -147,7 +147,7 @@ class OpItem extends StatelessWidget {
     return Icon(
       icon,
       size: size,
-      color: Colors.black.withOpacity(0.6),
+      color: colorScheme.primary.withOpacity(0.6),
     );
   }
 }

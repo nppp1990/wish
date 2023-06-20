@@ -48,19 +48,23 @@ class WishSwitcherState extends State<WishSwitcher> with ResultMixin<int>, Refre
     );
   }
 
-  Widget _buildAnimatedSwitcher(BuildContext context) => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 400),
-        transitionBuilder: (Widget child, Animation<double> animation) => FadeTransition(
-          opacity: animation,
-          child: ScaleTransition(scale: animation, child: child),
-        ),
-        child: Text('$_count',
-            key: ValueKey<int>(_count),
-            style: TextStyle(
-                color: _count == 0 ? Colors.black.withOpacity(0.6) : Colors.black,
-                fontSize: 20,
-                fontWeight: FontWeight.w900)),
-      );
+  Widget _buildAnimatedSwitcher(BuildContext context) {
+    var primaryColor = Theme.of(context).colorScheme.primary;
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      transitionBuilder: (Widget child, Animation<double> animation) =>
+          FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(scale: animation, child: child),
+          ),
+      child: Text('$_count',
+          key: ValueKey<int>(_count),
+          style: TextStyle(
+              color: _count == 0 ? primaryColor.withOpacity(0.6) : primaryColor,
+              fontSize: 20,
+              fontWeight: FontWeight.w900)),
+    );
+  }
 
   Widget _buildMinusBtn() {
     return MaterialButton(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wish/data/style/wish_options.dart';
 import 'package:wish/data/wish_data.dart';
 
 typedef DrawerCallback = void Function(DrawerType type);
@@ -83,28 +84,24 @@ class DrawerLayout extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 20, left: 20, bottom: 20),
-            child: Text(drawerType.toString(),
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+            child: Text(drawerType.toString(), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
           ),
           _buildItem(context, DrawerType.allList),
           _buildItem(context, DrawerType.wishList),
           _buildItem(context, DrawerType.repeatList),
           _buildItem(context, DrawerType.checkInList),
-          Divider(
+          const Divider(
             thickness: 1,
-            color: Colors.black.withOpacity(0.2),
             indent: 60,
           ),
           _buildItem(context, DrawerType.doneList),
           Divider(
             thickness: 1,
-            color: Colors.black.withOpacity(0.2),
             indent: 60,
           ),
           _buildItem(context, DrawerType.review),
-          Divider(
+          const Divider(
             thickness: 1,
-            color: Colors.black.withOpacity(0.2),
             indent: 60,
           ),
           _buildItem(context, DrawerType.setting),
@@ -114,10 +111,11 @@ class DrawerLayout extends StatelessWidget {
   }
 
   Widget _buildItem(BuildContext context, DrawerType type) {
+    var isDark = WishOptions.of(context).themeMode == ThemeMode.dark;
     return ListTile(
       selected: type == drawerType,
       title: Text(type.toString()),
-      selectedTileColor: const Color(0XFFE8E8E8),
+      // selectedTileColor: isDark ? GalleryThemeData.test1 : const Color(0XFFE8E8E8),
       leading: Icon(type._getIcon()),
       onTap: () {
         Navigator.pop(context);

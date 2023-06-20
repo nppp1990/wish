@@ -17,12 +17,13 @@ class ItemWrap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget labelView;
+    var colorScheme = Theme.of(context).colorScheme;
     if (onLabelPressed == null) {
       labelView =  Positioned(
           left: 20,
           top: 0,
           child: Container(
-            color: Colors.white,
+            color: colorScheme.secondary,
             child: Text(
               itemLabel,
               style: const TextStyle(
@@ -36,7 +37,7 @@ class ItemWrap extends StatelessWidget {
           left: 20,
           top: -5,
           child: Container(
-            color: Colors.white,
+            color: colorScheme.secondary,
             child: TextButton(
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
@@ -60,7 +61,7 @@ class ItemWrap extends StatelessWidget {
         child: DottedBorder(
           borderType: BorderType.RRect,
           dashPattern: const [8, 4],
-          color: Colors.black,
+          color: colorScheme.primary,
           radius: const Radius.circular(12),
           padding: padding,
           child: child,

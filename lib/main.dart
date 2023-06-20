@@ -1,12 +1,15 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wish/data/style/wish_options.dart';
 import 'package:wish/data/wish_data.dart';
 import 'package:wish/data/wish_icons.dart';
-import 'package:wish/edit_page.dart';
-import 'package:wish/list.dart';
-import 'package:wish/review_page.dart';
+import 'package:wish/pages/edit_page.dart';
+import 'package:wish/pages/list.dart';
+import 'package:wish/pages/review_page.dart';
+import 'package:wish/pages/setting_page.dart';
 import 'package:wish/router/router_utils.dart';
 import 'package:wish/themes/gallery_theme_data.dart';
 import 'package:wish/widgets/drawer.dart';
@@ -20,12 +23,26 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: const HomePage(),
-      theme: GalleryThemeData.lightThemeData.copyWith(
-        platform: TargetPlatform.android,
+    return ModelBinding(
+      initialModel: WishOptions(
+        themeMode: ThemeMode.system,
+        platform: defaultTargetPlatform,
+        isTestMode: false,
       ),
-      // home: Scaffold(
+      child: Builder(builder: (context) {
+        final options = WishOptions.of(context);
+        return MaterialApp(
+          home: const HomePage(),
+          themeMode: options.themeMode,
+          theme: GalleryThemeData.lightThemeData.copyWith(
+            platform: options.platform,
+          ),
+          darkTheme: GalleryThemeData.darkThemeData.copyWith(
+            platform: options.platform,
+          ),
+          // home: Scaffold(
+        );
+      }),
     );
   }
 }
@@ -72,6 +89,7 @@ class _HomePageState extends State<HomePage> {
         createText = '创建心愿';
         break;
     }
+    bool isLight = Theme.of(context).brightness == Brightness.light;
     return Scaffold(
         appBar: AppBar(
           title: Text(_drawerType.toString()),
@@ -97,11 +115,9 @@ class _HomePageState extends State<HomePage> {
           onPressed: () {
             _gotoCreatePage();
           },
-          backgroundColor: Colors.black,
           child: const Icon(
             size: 40,
             Icons.add,
-            color: Colors.white,
           ),
         ),
         body: WishList(
@@ -124,6 +140,7 @@ class _HomePageState extends State<HomePage> {
                 });
                 break;
               case DrawerType.setting:
+                _gotoSettingPage();
                 break;
               case DrawerType.review:
                 _gotoReviewPage();
@@ -134,7 +151,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   _gotoReviewPage() {
-    Navigator.push(context, Right2LeftRouter(child: ReviewPage()));
+    Navigator.push(context, Right2LeftRouter(child: const ReviewPage()));
+  }
+
+  _gotoSettingPage() {
+    Navigator.push(context, Right2LeftRouter(child: const SettingPage()));
   }
 
   _gotoCreatePage() {
@@ -148,10 +169,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   _showSortDialog(SortType sortType, bool isAsc) async {
-    buildItem(SortType itemType) {
-      IconData? iconData = itemType == sortType
-          ? (isAsc ? WishIcons.arrowUp : WishIcons.arrowDown)
-          : null;
+    buildItem(BuildContext context, SortType itemType) {
+      IconData? iconData = itemType == sortType ? (isAsc ? WishIcons.arrowUp : WishIcons.arrowDown) : null;
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
@@ -161,9 +180,7 @@ class _HomePageState extends State<HomePage> {
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(itemType.toString(),
-                style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+            Text(itemType.toString(), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
             const SizedBox(
               width: 6,
               height: 40,
@@ -171,7 +188,7 @@ class _HomePageState extends State<HomePage> {
             if (iconData != null)
               Icon(
                 iconData,
-                color: Colors.black,
+                color: Theme.of(context).colorScheme.primary,
                 size: 14,
               ),
           ],
@@ -180,6 +197,8 @@ class _HomePageState extends State<HomePage> {
     }
 
     final res = await Future.delayed(Duration.zero, () {
+      var colorScheme = Theme.of(context).colorScheme;
+      var isLight = colorScheme.brightness == Brightness.light;
       return showModalBottomSheet(
           context: context,
           backgroundColor: Colors.transparent,
@@ -188,7 +207,10 @@ class _HomePageState extends State<HomePage> {
               margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
               padding: const EdgeInsets.only(left: 20, right: 20, bottom: 3),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15), color: Colors.white),
+                borderRadius: BorderRadius.circular(15),
+                color: colorScheme.secondary,
+                border: isLight ? null : Border.all(color: GalleryThemeData.darkGreenBorderColor, width: 1),
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,17 +219,14 @@ class _HomePageState extends State<HomePage> {
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Text(
                       '排序方式',
-                      style:
-                          TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
+                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
                     ),
                   ),
-                  buildItem(SortType.name),
-                  const Divider(
-                      height: 1, thickness: 1, color: Color(0xfff0f0f0)),
-                  buildItem(SortType.createdTime),
-                  const Divider(
-                      height: 1, thickness: 1, color: Color(0xfff0f0f0)),
-                  buildItem(SortType.modifiedTime),
+                  buildItem(context, SortType.name),
+                  const Divider(height: 1, thickness: 1),
+                  buildItem(context, SortType.createdTime),
+                  const Divider(height: 1, thickness: 1),
+                  buildItem(context, SortType.modifiedTime),
                 ],
               ),
             );

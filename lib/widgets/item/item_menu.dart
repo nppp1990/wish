@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wish/data/wish_data.dart';
 import 'package:wish/widgets/item/wish_item.dart';
+import 'package:wish/themes/gallery_theme_data.dart';
 
 enum PopupMenuType {
   edit,
@@ -19,16 +20,19 @@ class PopupMenuUtils {
   static const itemWidth = 240.0;
   static const padding = 10;
 
-  static Future<PopupMenuType?> show(BuildContext context, GlobalKey key,
-      {PopupMenuCallback? callback}) {
+  static Future<PopupMenuType?> show(BuildContext context, GlobalKey key, {PopupMenuCallback? callback}) {
     final itemData = (key.currentWidget as WishItem).itemData;
     debugPrint('itemData: $itemData');
+    final isLight = Theme.of(context).brightness == Brightness.light;
 
     return showMenu(
       elevation: 8,
       context: context,
-      color: const Color(0XFFf1f1f1),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+      color: isLight ? const Color(0XFFf1f1f1) : null,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+        side: BorderSide(color: GalleryThemeData.darkGreenBorderColor),
+      ),
       position: _getWidgetGlobalRect(context, key),
       constraints: const BoxConstraints(
         maxWidth: itemWidth + padding,
@@ -37,8 +41,7 @@ class PopupMenuUtils {
     );
   }
 
-  static List<PopupMenuEntry<PopupMenuType>> _buildMenuItems(
-      WishData itemData, PopupMenuCallback? callback) {
+  static List<PopupMenuEntry<PopupMenuType>> _buildMenuItems(WishData itemData, PopupMenuCallback? callback) {
     return [
       _buildMenuItem(PopupMenuType.edit, '编辑', Icons.edit_note_outlined, onTap: () {
         callback?.call(PopupMenuType.edit);
@@ -47,20 +50,18 @@ class PopupMenuUtils {
       ..._buildOptions(itemData, callback),
       // _buildMenuItem('完成', Icons.done),
       // const PopupMenuDivider(),
-      _buildMenuItem(PopupMenuType.delete, '删除', Icons.delete_outline, color: Colors.red,
-          onTap: () {
+      _buildMenuItem(PopupMenuType.delete, '删除', Icons.delete_outline, color: Colors.red, onTap: () {
         callback?.call(PopupMenuType.delete);
       }),
     ];
   }
 
-  static List<PopupMenuEntry<PopupMenuType>> _buildOptions(
-      WishData itemData, PopupMenuCallback? callback) {
+  static List<PopupMenuEntry<PopupMenuType>> _buildOptions(WishData itemData, PopupMenuCallback? callback) {
     if (itemData.wishType == WishType.wish) {
       if (itemData.done) {
         return [
-          _buildMenuItem(PopupMenuType.done, '取消完成', Icons.radio_button_unchecked_outlined,
-              color: Colors.grey, onTap: () {
+          _buildMenuItem(PopupMenuType.done, '取消完成', Icons.radio_button_unchecked_outlined, color: Colors.grey,
+              onTap: () {
             callback?.call(PopupMenuType.done);
           }),
           const PopupMenuDivider(),
@@ -99,8 +100,7 @@ class PopupMenuUtils {
     ];
   }
 
-  static PopupMenuItem<PopupMenuType> _buildMenuItem(
-      PopupMenuType type, String text, IconData iconData,
+  static PopupMenuItem<PopupMenuType> _buildMenuItem(PopupMenuType type, String text, IconData iconData,
       {Color color = Colors.black, required VoidCallback onTap}) {
     return PopupMenuItem(
         value: type,
@@ -129,8 +129,7 @@ class PopupMenuUtils {
   static RelativeRect _getWidgetGlobalRect(BuildContext context, GlobalKey key) {
     final RenderBox renderBox = key.currentContext!.findRenderObject() as RenderBox;
     final offset = renderBox.localToGlobal(Offset.zero);
-    debugPrint(
-        'Widget position: ${offset.dx} ${offset.dy} ${renderBox.size.width} ${renderBox.size.height}');
+    debugPrint('Widget position: ${offset.dx} ${offset.dy} ${renderBox.size.width} ${renderBox.size.height}');
     final dx = (MediaQuery.of(context).size.width) / 2;
     return RelativeRect.fromLTRB(
       dx,

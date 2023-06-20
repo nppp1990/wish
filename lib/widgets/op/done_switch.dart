@@ -39,13 +39,14 @@ class _DoneSwitchState extends State<DoneSwitch> {
 
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
     return Row(
       children: [
         Text(
           _done ? widget.yesText : widget.noText,
           style: TextStyle(
             fontSize: widget.textSize,
-            color: _done ? Colors.black : Colors.grey,
+            color: _done ? colorScheme.primary : Colors.grey,
           ),
         ),
         SizedBox(
@@ -56,7 +57,7 @@ class _DoneSwitchState extends State<DoneSwitch> {
           child: Switch(
               // 大小
               value: _done,
-              activeColor: Colors.black,
+              activeColor: colorScheme.primary,
               // activeTrackColor: Colors.greenAccent,
               // inactiveThumbColor: Colors.
               // inactiveTrackColor: Colors.grey.withOpacity(0.5),

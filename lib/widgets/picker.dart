@@ -12,8 +12,7 @@ class IntervalTimePicker extends StatefulWidget {
   State<StatefulWidget> createState() => IntervalTimePickerState();
 }
 
-class IntervalTimePickerState extends State<IntervalTimePicker>
-    with ResultMixin<int?>, RefreshState<int> {
+class IntervalTimePickerState extends State<IntervalTimePicker> with ResultMixin<int?>, RefreshState<int> {
   late FocusNode _focusNode;
   late TextEditingController _controller;
 
@@ -44,6 +43,7 @@ class IntervalTimePickerState extends State<IntervalTimePicker>
 
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
@@ -51,7 +51,7 @@ class IntervalTimePickerState extends State<IntervalTimePicker>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Icon(Icons.hourglass_bottom_outlined, size: 30, color: Colors.black),
+            Icon(Icons.hourglass_bottom_outlined, size: 30, color: colorScheme.primary),
             const SizedBox(width: 6),
             const Text('间隔天数：', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
             Expanded(
@@ -62,19 +62,19 @@ class IntervalTimePickerState extends State<IntervalTimePicker>
                   controller: _controller,
                   focusNode: _focusNode,
                   keyboardType: TextInputType.number,
-                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900),
-                  decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.only(bottom: 0, left: 5),
+                  style: const TextStyle(fontWeight: FontWeight.w900),
+                  decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.only(bottom: 0, left: 5),
                       hintText: '选择打卡间隔天数',
-                      hintStyle: TextStyle(color: Colors.grey, fontWeight: FontWeight.w700),
+                      hintStyle: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w700),
                       focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderSide: BorderSide(color: colorScheme.primary, width: 1),
                       ),
                       enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderSide: BorderSide(color: colorScheme.primary, width: 1),
                       ),
                       disabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderSide: BorderSide(color: colorScheme.primary, width: 1),
                       )),
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 ),
@@ -112,15 +112,16 @@ class CheckInTimePickerState extends State<CheckInTimePicker> with ResultMixin<T
 
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
+    var isLight = colorScheme.brightness == Brightness.light;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          const Icon(Icons.timer_outlined, color: Colors.black, size: 30),
+          Icon(Icons.timer_outlined, color: colorScheme.primary, size: 30),
           const SizedBox(width: 6),
-          const Text('打卡时间：',
-              style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w900)),
+          const Text('打卡时间：', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
           Expanded(
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,11 +132,11 @@ class CheckInTimePickerState extends State<CheckInTimePicker> with ResultMixin<T
                   _currentTime != null ? TimeUtils.getShowTime(_currentTime!) : '选择每日打卡时间',
                   style: TextStyle(
                       fontSize: 16,
-                      color: _currentTime == null ? Colors.grey : Colors.black,
+                      color: _currentTime == null ? (isLight ? Colors.grey : const Color(0XFF808080)) : colorScheme.primary,
                       fontWeight: _currentTime == null ? FontWeight.w700 : FontWeight.w900),
                 ),
               ),
-              const Divider(height: 1, thickness: 1, color: Colors.black),
+              Divider(height: 1, thickness: 1, color: colorScheme.primary),
             ],
           )),
         ],
@@ -189,14 +190,15 @@ class DatePickerState extends State<DatePicker> with ResultMixin<DateTime> {
 
   @override
   Widget build(BuildContext context) {
+    var colorTheme = Theme.of(context).colorScheme;
+    var isLight = colorTheme.brightness == Brightness.light;
     return InkWell(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          const Icon(Icons.date_range_outlined, color: Colors.black, size: 30),
+          Icon(Icons.date_range_outlined, color: colorTheme.primary, size: 30),
           const SizedBox(width: 6),
-          const Text('截止日期：',
-              style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w900)),
+          Text('截止日期：', style: TextStyle(fontSize: 16, color: colorTheme.primary, fontWeight: FontWeight.w900)),
           Expanded(
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,12 +209,13 @@ class DatePickerState extends State<DatePicker> with ResultMixin<DateTime> {
                   _currentDate != null ? TimeUtils.getShowDate(_currentDate!) : '选择心愿截止日期',
                   style: TextStyle(
                       fontSize: 16,
-                      color: _currentDate == null ? Colors.grey : Colors.black,
+                      color:
+                          _currentDate == null ? (isLight ? Colors.grey : const Color(0XFF808080)) : colorTheme.primary,
                       fontWeight: _currentDate == null ? FontWeight.w600 : FontWeight.w900),
                 ),
               ),
-              const Divider(
-                color: Colors.black,
+              Divider(
+                color: colorTheme.primary,
                 height: 1,
                 thickness: 1,
               ),
