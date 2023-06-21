@@ -75,7 +75,7 @@ class WishItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: isLight ? colorScheme.secondary : const Color(0xFF242424),
+          color: isLight ? colorScheme.secondary : colorScheme.primaryContainer,
           border: isLight ? null : Border.all(color: GalleryThemeData.darkGreenBorderColor, width: 1),
           boxShadow: isLight
               ? [
@@ -206,6 +206,7 @@ class WishItem extends StatelessWidget {
       return ProgressCircle(
         size: 40,
         value: count / itemData.stepList!.length,
+        color: colorScheme.primary,
       );
     }
     return Icon(

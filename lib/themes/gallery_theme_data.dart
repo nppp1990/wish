@@ -105,7 +105,7 @@ class GalleryThemeData {
 
   static const ColorScheme lightColorScheme = ColorScheme(
     primary: Colors.black,
-    primaryContainer: Color(0xFF117378),
+    primaryContainer: Color(0xFFEFF3F3),
     secondary: Colors.white,
     secondaryContainer: Colors.white,
     background: Colors.white,
@@ -114,7 +114,7 @@ class GalleryThemeData {
     error: _lightFillColor,
     onError: _lightFillColor,
     onPrimary: Colors.white,
-    onSecondary: Colors.yellow,
+    onSecondary: Color(0xFF322942),
     onSurface: Colors.black,
     brightness: Brightness.light,
   );
@@ -122,7 +122,7 @@ class GalleryThemeData {
   static const ColorScheme darkColorScheme = ColorScheme(
     // primary: Color(0xFFFF8383),
     primary: Colors.white,
-    primaryContainer: Color(0xFF1CDEC9),
+    primaryContainer: Color(0xFF242424),
     secondary: Color(0xFF1A1A1A),
     secondaryContainer: Color(0xFF451B6F),
     background: Color(0xFF1A1A1A),
@@ -131,7 +131,7 @@ class GalleryThemeData {
     error: _darkFillColor,
     onError: _darkFillColor,
     onPrimary: Color(0xFF1A1A1A),
-    onSecondary: _darkFillColor,
+    onSecondary: Color(0xFFFAFBFB),
     onSurface: _darkFillColor,
     brightness: Brightness.dark,
   );

@@ -12,6 +12,7 @@ import 'package:wish/pages/review_page.dart';
 import 'package:wish/pages/setting_page.dart';
 import 'package:wish/router/router_utils.dart';
 import 'package:wish/themes/gallery_theme_data.dart';
+import 'package:wish/utils/platfor.dart';
 import 'package:wish/widgets/drawer.dart';
 
 Future<void> main() async {
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ModelBinding(
       initialModel: WishOptions(
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.light,
         platform: defaultTargetPlatform,
         isTestMode: false,
       ),
@@ -62,7 +63,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    if (Platform.isAndroid) {
+    if (PlatformUtils.instance.isMobile && Platform.isAndroid) {
       SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,

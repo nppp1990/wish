@@ -24,7 +24,7 @@ class ProgressCircle extends StatelessWidget {
           child: CircularProgressIndicator(
             strokeWidth: 3,
             value: value,
-            backgroundColor: Colors.black.withOpacity(0.2),
+            backgroundColor: color.withOpacity(0.2),
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         ),

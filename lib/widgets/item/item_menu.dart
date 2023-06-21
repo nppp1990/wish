@@ -29,38 +29,38 @@ class PopupMenuUtils {
       elevation: 8,
       context: context,
       color: isLight ? const Color(0XFFf1f1f1) : null,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-        side: BorderSide(color: GalleryThemeData.darkGreenBorderColor),
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        side: isLight ? BorderSide.none : const BorderSide(color: GalleryThemeData.darkGreenBorderColor),
       ),
       position: _getWidgetGlobalRect(context, key),
       constraints: const BoxConstraints(
         maxWidth: itemWidth + padding,
       ),
-      items: _buildMenuItems(itemData, callback),
+      items: _buildMenuItems(context, itemData, callback),
     );
   }
 
-  static List<PopupMenuEntry<PopupMenuType>> _buildMenuItems(WishData itemData, PopupMenuCallback? callback) {
+  static List<PopupMenuEntry<PopupMenuType>> _buildMenuItems(
+      BuildContext context, WishData itemData, PopupMenuCallback? callback) {
     return [
-      _buildMenuItem(PopupMenuType.edit, '编辑', Icons.edit_note_outlined, onTap: () {
+      _buildMenuItem(context, PopupMenuType.edit, '编辑', Icons.edit_note_outlined, onTap: () {
         callback?.call(PopupMenuType.edit);
       }),
       const PopupMenuDivider(),
-      ..._buildOptions(itemData, callback),
-      // _buildMenuItem('完成', Icons.done),
-      // const PopupMenuDivider(),
-      _buildMenuItem(PopupMenuType.delete, '删除', Icons.delete_outline, color: Colors.red, onTap: () {
+      ..._buildOptions(context, itemData, callback),
+      _buildMenuItem(context, PopupMenuType.delete, '删除', Icons.delete_outline, color: Colors.red, onTap: () {
         callback?.call(PopupMenuType.delete);
       }),
     ];
   }
 
-  static List<PopupMenuEntry<PopupMenuType>> _buildOptions(WishData itemData, PopupMenuCallback? callback) {
+  static List<PopupMenuEntry<PopupMenuType>> _buildOptions(
+      BuildContext context, WishData itemData, PopupMenuCallback? callback) {
     if (itemData.wishType == WishType.wish) {
       if (itemData.done) {
         return [
-          _buildMenuItem(PopupMenuType.done, '取消完成', Icons.radio_button_unchecked_outlined, color: Colors.grey,
+          _buildMenuItem(context, PopupMenuType.done, '取消完成', Icons.radio_button_unchecked_outlined, color: Colors.grey,
               onTap: () {
             callback?.call(PopupMenuType.done);
           }),
@@ -68,7 +68,7 @@ class PopupMenuUtils {
         ];
       } else {
         return [
-          _buildMenuItem(PopupMenuType.done, '完成', Icons.radio_button_checked_outlined, onTap: () {
+          _buildMenuItem(context, PopupMenuType.done, '完成', Icons.radio_button_checked_outlined, onTap: () {
             callback?.call(PopupMenuType.done);
           }),
           const PopupMenuDivider(),
@@ -77,11 +77,11 @@ class PopupMenuUtils {
     }
     if (itemData.wishType == WishType.repeat) {
       return [
-        _buildMenuItem(PopupMenuType.addCount, '次数', Icons.plus_one_outlined, onTap: () {
+        _buildMenuItem(context, PopupMenuType.addCount, '次数', Icons.plus_one_outlined, onTap: () {
           callback?.call(PopupMenuType.addCount);
         }),
         const PopupMenuDivider(),
-        _buildMenuItem(PopupMenuType.done, '完成', Icons.radio_button_checked_outlined, onTap: () {
+        _buildMenuItem(context, PopupMenuType.done, '完成', Icons.radio_button_checked_outlined, onTap: () {
           callback?.call(PopupMenuType.done);
         }),
         const PopupMenuDivider(),
@@ -89,19 +89,21 @@ class PopupMenuUtils {
     }
 
     return [
-      _buildMenuItem(PopupMenuType.checkIn, '打卡', Icons.done, onTap: () {
+      _buildMenuItem(context, PopupMenuType.checkIn, '打卡', Icons.done, onTap: () {
         callback?.call(PopupMenuType.checkIn);
       }),
       const PopupMenuDivider(),
-      _buildMenuItem(PopupMenuType.done, '完成', Icons.radio_button_checked_outlined, onTap: () {
+      _buildMenuItem(context, PopupMenuType.done, '完成', Icons.radio_button_checked_outlined, onTap: () {
         callback?.call(PopupMenuType.done);
       }),
       const PopupMenuDivider(),
     ];
   }
 
-  static PopupMenuItem<PopupMenuType> _buildMenuItem(PopupMenuType type, String text, IconData iconData,
-      {Color color = Colors.black, required VoidCallback onTap}) {
+  static PopupMenuItem<PopupMenuType> _buildMenuItem(
+      BuildContext context, PopupMenuType type, String text, IconData iconData,
+      {Color? color, required VoidCallback onTap}) {
+    color ??= Theme.of(context).colorScheme.primary;
     return PopupMenuItem(
         value: type,
         onTap: onTap,
@@ -114,7 +116,7 @@ class PopupMenuUtils {
               Expanded(
                   child: Text(
                 text,
-                style: TextStyle(color: color, fontWeight: FontWeight.w800),
+                style: const TextStyle(fontWeight: FontWeight.w800),
               )),
               Icon(
                 iconData,

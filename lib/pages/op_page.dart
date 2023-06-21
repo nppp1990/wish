@@ -218,6 +218,7 @@ class _OpPageViewState extends State<OpPageView> {
   }
 
   Widget _buildSliverAppBar(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
     return SliverAppBar(
       expandedHeight: 110,
       actions: [
@@ -243,7 +244,7 @@ class _OpPageViewState extends State<OpPageView> {
             widget.itemData.name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.w700),
+            style: TextStyle(fontWeight: FontWeight.w700, color: colorScheme.primary),
           ),
           stretchModes: const [
             StretchMode.blurBackground,

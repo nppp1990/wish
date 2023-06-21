@@ -23,21 +23,24 @@ class _RadioCheckState extends State<RadioCheck> {
   @override
   Widget build(BuildContext context) {
     Widget? titleChild;
+    var primaryColor = Theme.of(context).colorScheme.primary;
+
     if (widget.desc != null) {
       final TextStyle style;
       if (_value) {
-        style = const TextStyle(
+        style = TextStyle(
           fontSize: 16,
-          color: Colors.black38,
+          color: primaryColor.withOpacity(0.38),
           fontWeight: FontWeight.w700,
           decoration: TextDecoration.lineThrough,
-          decorationColor: Colors.black38,
+          decorationColor: primaryColor.withOpacity(0.38),
           decorationThickness: 3,
         );
       } else {
-        style = const TextStyle(
+        style = TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w700,
+          color: primaryColor,
         );
       }
       titleChild = Transform.translate(
@@ -48,18 +51,28 @@ class _RadioCheckState extends State<RadioCheck> {
           ));
     }
 
+    Color getColor(Set<MaterialState> states) {
+      if (states.contains(MaterialState.selected)) {
+        return primaryColor.withOpacity(0.38);
+      } else {
+        return primaryColor;
+      }
+    }
+
     return MergeSemantics(
       child: SizedBox(
         child: ListTile(
           onTap: _select,
           contentPadding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(color: Colors.black, width: 1),
+            side: BorderSide(color: primaryColor, width: 1),
             borderRadius: BorderRadius.circular(5),
           ),
           leading: Transform.scale(
             scale: 1.2,
             child: Radio(
+                activeColor: primaryColor.withOpacity(0.38),
+                fillColor: MaterialStateProperty.resolveWith(getColor),
                 toggleable: true,
                 value: _value,
                 groupValue: true,
