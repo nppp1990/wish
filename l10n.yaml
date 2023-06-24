@@ -1,0 +1,9 @@
+arb-dir: lib/l10n
+template-arb-file: intl_en.arb
+output-localization-file: wish_localizations.dart
+output-class: WishLocalizations
+preferred-supported-locales:
+  - en
+use-deferred-loading: true
+suppress-warnings: true
+untranslated-messages-file: untranslated_messages.json

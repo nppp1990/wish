@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/wish_localizations.dart';
 import 'package:wish/data/wish_data.dart';
 import 'package:wish/utils/example.dart';
 
@@ -162,7 +163,8 @@ class _RefreshTextState extends State<_RefreshText> with SingleTickerProviderSta
         onPressed: () {
           widget.onLabelClicked.call(_randomTemplate.second);
         },
-        child: Text('例如：$_showText', style: TextStyle(color: colorScheme.primary.withOpacity(0.6), fontSize: 14)),
+        child: Text('${WishLocalizations.of(context)!.egLabel}$_showText',
+            style: TextStyle(color: colorScheme.primary.withOpacity(0.6), fontSize: 14)),
       ),
       const SizedBox(
         width: 2,

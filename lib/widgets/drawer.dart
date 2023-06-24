@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wish/data/style/wish_options.dart';
 import 'package:wish/data/wish_data.dart';
+import 'package:flutter_gen/gen_l10n/wish_localizations.dart';
 
 typedef DrawerCallback = void Function(DrawerType type);
 
@@ -13,24 +13,24 @@ enum DrawerType {
   review,
   setting;
 
-  @override
-  String toString() {
+  String getShowTitle(BuildContext context) {
+    WishLocalizations localizations = WishLocalizations.of(context)!;
     switch (this) {
       case DrawerType.wishList:
-        return '心想事成';
+        return localizations.desireLabel;
       case DrawerType.repeatList:
-        return '重复任务';
+        return localizations.repeatTaskLabel;
       case DrawerType.checkInList:
-        return '打卡任务';
+        return localizations.checkInTaskLabel;
       case DrawerType.setting:
-        return '设置';
+        return localizations.setting;
       case DrawerType.doneList:
-        return '已完成';
+        return localizations.doneLabel;
       case DrawerType.review:
-        return '回顾';
+        return localizations.reviewLabel;
       case DrawerType.allList:
       default:
-        return '全部心愿';
+        return localizations.allWish;
     }
   }
 
@@ -84,7 +84,7 @@ class DrawerLayout extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 20, left: 20, bottom: 20),
-            child: Text(drawerType.toString(), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+            child: Text(drawerType.getShowTitle(context), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
           ),
           _buildItem(context, DrawerType.allList),
           _buildItem(context, DrawerType.wishList),
@@ -95,7 +95,7 @@ class DrawerLayout extends StatelessWidget {
             indent: 60,
           ),
           _buildItem(context, DrawerType.doneList),
-          Divider(
+          const Divider(
             thickness: 1,
             indent: 60,
           ),
@@ -111,11 +111,9 @@ class DrawerLayout extends StatelessWidget {
   }
 
   Widget _buildItem(BuildContext context, DrawerType type) {
-    var isDark = WishOptions.of(context).themeMode == ThemeMode.dark;
     return ListTile(
       selected: type == drawerType,
-      title: Text(type.toString()),
-      // selectedTileColor: isDark ? GalleryThemeData.test1 : const Color(0XFFE8E8E8),
+      title: Text(type.getShowTitle(context)),
       leading: Icon(type._getIcon()),
       onTap: () {
         Navigator.pop(context);

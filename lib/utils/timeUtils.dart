@@ -75,15 +75,15 @@ class TimeUtils {
     return '$hourLabel:$minuteLabel';
   }
 
-  static String getShowTimeFromTimeStamp(String checkInTime) {
-    return getShowTime(fromCheckInTime(checkInTime)!);
-  }
-
   static String getShowDate(DateTime date) {
     return '${date.year}-${date.month}-${date.day}';
   }
 
-  static String getShowDateFromTimeStr(int timeStamp) {
+  static getShowDateFromTimeStamp(int timeStamp) {
     return getShowDate(from(timeStamp));
+  }
+
+  static String getShowTimeFromTimeStr(String checkInTime) {
+    return getShowTime(fromCheckInTime(checkInTime)!);
   }
 }

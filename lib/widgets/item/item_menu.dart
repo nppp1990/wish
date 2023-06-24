@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/wish_localizations.dart';
 import 'package:wish/data/wish_data.dart';
 import 'package:wish/widgets/item/wish_item.dart';
-import 'package:wish/themes/gallery_theme_data.dart';
+import 'package:wish/themes/wish_theme_data.dart';
 
 enum PopupMenuType {
   edit,
@@ -31,7 +32,7 @@ class PopupMenuUtils {
       color: isLight ? const Color(0XFFf1f1f1) : null,
       shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.all(Radius.circular(10)),
-        side: isLight ? BorderSide.none : const BorderSide(color: GalleryThemeData.darkGreenBorderColor),
+        side: isLight ? BorderSide.none : const BorderSide(color: WishThemeData.darkGreenBorderColor),
       ),
       position: _getWidgetGlobalRect(context, key),
       constraints: const BoxConstraints(
@@ -43,13 +44,14 @@ class PopupMenuUtils {
 
   static List<PopupMenuEntry<PopupMenuType>> _buildMenuItems(
       BuildContext context, WishData itemData, PopupMenuCallback? callback) {
+    var localizations = WishLocalizations.of(context)!;
     return [
-      _buildMenuItem(context, PopupMenuType.edit, '编辑', Icons.edit_note_outlined, onTap: () {
+      _buildMenuItem(context, PopupMenuType.edit, localizations.menuEdit, Icons.edit_note_outlined, onTap: () {
         callback?.call(PopupMenuType.edit);
       }),
       const PopupMenuDivider(),
       ..._buildOptions(context, itemData, callback),
-      _buildMenuItem(context, PopupMenuType.delete, '删除', Icons.delete_outline, color: Colors.red, onTap: () {
+      _buildMenuItem(context, PopupMenuType.delete, localizations.menuDelete, Icons.delete_outline, color: Colors.red, onTap: () {
         callback?.call(PopupMenuType.delete);
       }),
     ];
@@ -57,10 +59,11 @@ class PopupMenuUtils {
 
   static List<PopupMenuEntry<PopupMenuType>> _buildOptions(
       BuildContext context, WishData itemData, PopupMenuCallback? callback) {
+    var localizations = WishLocalizations.of(context)!;
     if (itemData.wishType == WishType.wish) {
       if (itemData.done) {
         return [
-          _buildMenuItem(context, PopupMenuType.done, '取消完成', Icons.radio_button_unchecked_outlined, color: Colors.grey,
+          _buildMenuItem(context, PopupMenuType.done, localizations.menuUndone, Icons.radio_button_unchecked_outlined, color: Colors.grey,
               onTap: () {
             callback?.call(PopupMenuType.done);
           }),
@@ -68,7 +71,7 @@ class PopupMenuUtils {
         ];
       } else {
         return [
-          _buildMenuItem(context, PopupMenuType.done, '完成', Icons.radio_button_checked_outlined, onTap: () {
+          _buildMenuItem(context, PopupMenuType.done, localizations.menuDone, Icons.radio_button_checked_outlined, onTap: () {
             callback?.call(PopupMenuType.done);
           }),
           const PopupMenuDivider(),
@@ -77,11 +80,11 @@ class PopupMenuUtils {
     }
     if (itemData.wishType == WishType.repeat) {
       return [
-        _buildMenuItem(context, PopupMenuType.addCount, '次数', Icons.plus_one_outlined, onTap: () {
+        _buildMenuItem(context, PopupMenuType.addCount, localizations.menuTimes, Icons.plus_one_outlined, onTap: () {
           callback?.call(PopupMenuType.addCount);
         }),
         const PopupMenuDivider(),
-        _buildMenuItem(context, PopupMenuType.done, '完成', Icons.radio_button_checked_outlined, onTap: () {
+        _buildMenuItem(context, PopupMenuType.done, localizations.menuDone, Icons.radio_button_checked_outlined, onTap: () {
           callback?.call(PopupMenuType.done);
         }),
         const PopupMenuDivider(),
@@ -89,11 +92,11 @@ class PopupMenuUtils {
     }
 
     return [
-      _buildMenuItem(context, PopupMenuType.checkIn, '打卡', Icons.done, onTap: () {
+      _buildMenuItem(context, PopupMenuType.checkIn, localizations.menuCheckIn, Icons.done, onTap: () {
         callback?.call(PopupMenuType.checkIn);
       }),
       const PopupMenuDivider(),
-      _buildMenuItem(context, PopupMenuType.done, '完成', Icons.radio_button_checked_outlined, onTap: () {
+      _buildMenuItem(context, PopupMenuType.done, localizations.menuDone, Icons.radio_button_checked_outlined, onTap: () {
         callback?.call(PopupMenuType.done);
       }),
       const PopupMenuDivider(),

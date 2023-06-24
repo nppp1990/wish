@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/wish_localizations.dart';
+import 'package:wish/data/style/wish_options.dart';
 import 'package:wish/utils/struct.dart';
 import 'package:wish/utils/timeUtils.dart';
 
@@ -44,6 +46,18 @@ class IntervalTimePickerState extends State<IntervalTimePicker> with ResultMixin
   @override
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
+    var localizations = WishLocalizations.of(context)!;
+    Widget labelWidgt;
+    if (HookData.instance.pickerLabelWidth == null) {
+      labelWidgt =
+          Text(localizations.checkInPeriodLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900));
+    } else {
+      labelWidgt = SizedBox(
+        width: HookData.instance.pickerLabelWidth,
+        child:
+            Text(localizations.checkInPeriodLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+      );
+    }
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
@@ -53,7 +67,7 @@ class IntervalTimePickerState extends State<IntervalTimePicker> with ResultMixin
           children: [
             Icon(Icons.hourglass_bottom_outlined, size: 30, color: colorScheme.primary),
             const SizedBox(width: 6),
-            const Text('间隔天数：', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+            labelWidgt,
             Expanded(
                 child: Transform.translate(
               offset: const Offset(0, -5),
@@ -65,7 +79,7 @@ class IntervalTimePickerState extends State<IntervalTimePicker> with ResultMixin
                   style: const TextStyle(fontWeight: FontWeight.w900),
                   decoration: InputDecoration(
                       contentPadding: const EdgeInsets.only(bottom: 0, left: 5),
-                      hintText: '选择打卡间隔天数',
+                      hintText: localizations.checkInPeriodHint,
                       hintStyle: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w700),
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: colorScheme.primary, width: 1),
@@ -114,6 +128,17 @@ class CheckInTimePickerState extends State<CheckInTimePicker> with ResultMixin<T
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
     var isLight = colorScheme.brightness == Brightness.light;
+    var localizations = WishLocalizations.of(context)!;
+    Widget labelWidget;
+    if (HookData.instance.pickerLabelWidth == null) {
+      labelWidget =
+          Text(localizations.inputCheckInLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900));
+    } else {
+      labelWidget = SizedBox(
+        width: HookData.instance.pickerLabelWidth,
+        child: Text(localizations.inputCheckInLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+      );
+    }
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       child: Row(
@@ -121,7 +146,7 @@ class CheckInTimePickerState extends State<CheckInTimePicker> with ResultMixin<T
         children: [
           Icon(Icons.timer_outlined, color: colorScheme.primary, size: 30),
           const SizedBox(width: 6),
-          const Text('打卡时间：', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+          labelWidget,
           Expanded(
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,10 +154,12 @@ class CheckInTimePickerState extends State<CheckInTimePicker> with ResultMixin<T
               Padding(
                 padding: const EdgeInsets.only(left: 5),
                 child: Text(
-                  _currentTime != null ? TimeUtils.getShowTime(_currentTime!) : '选择每日打卡时间',
+                  _currentTime != null ? TimeUtils.getShowTime(_currentTime!) : localizations.inputCheckInHint,
                   style: TextStyle(
                       fontSize: 16,
-                      color: _currentTime == null ? (isLight ? Colors.grey : const Color(0XFF808080)) : colorScheme.primary,
+                      color: _currentTime == null
+                          ? (isLight ? Colors.grey : const Color(0XFF808080))
+                          : colorScheme.primary,
                       fontWeight: _currentTime == null ? FontWeight.w700 : FontWeight.w900),
                 ),
               ),
@@ -192,13 +219,25 @@ class DatePickerState extends State<DatePicker> with ResultMixin<DateTime> {
   Widget build(BuildContext context) {
     var colorTheme = Theme.of(context).colorScheme;
     var isLight = colorTheme.brightness == Brightness.light;
+    var localizations = WishLocalizations.of(context)!;
+    Widget labelWidget;
+    if (HookData.instance.pickerLabelWidth == null) {
+      labelWidget = Text(localizations.endTimePickerLabel,
+          style: TextStyle(fontSize: 16, color: colorTheme.primary, fontWeight: FontWeight.w900));
+    } else {
+      labelWidget = SizedBox(
+        width: HookData.instance.pickerLabelWidth,
+        child: Text(localizations.endTimePickerLabel,
+            style: TextStyle(fontSize: 16, color: colorTheme.primary, fontWeight: FontWeight.w900)),
+      );
+    }
     return InkWell(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Icon(Icons.date_range_outlined, color: colorTheme.primary, size: 30),
           const SizedBox(width: 6),
-          Text('截止日期：', style: TextStyle(fontSize: 16, color: colorTheme.primary, fontWeight: FontWeight.w900)),
+          labelWidget,
           Expanded(
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,7 +245,7 @@ class DatePickerState extends State<DatePicker> with ResultMixin<DateTime> {
               Padding(
                 padding: const EdgeInsets.only(left: 5),
                 child: Text(
-                  _currentDate != null ? TimeUtils.getShowDate(_currentDate!) : '选择心愿截止日期',
+                  _currentDate != null ? TimeUtils.getShowDate(_currentDate!) : localizations.endTimePickerHint,
                   style: TextStyle(
                       fontSize: 16,
                       color:
@@ -232,9 +271,9 @@ class DatePickerState extends State<DatePicker> with ResultMixin<DateTime> {
   void showDate(BuildContext context) async {
     DateTime? time = await showDatePicker(
         context: context,
-        helpText: '选择心愿的截止日期',
-        cancelText: '取消',
-        confirmText: '确定',
+        helpText: WishLocalizations.of(context)!.endTimePickerHint,
+        // cancelText: '取消',
+        // confirmText: '确定',
         initialDate: _currentDate ?? DateTime.now(),
         firstDate: DateTime(DateTime.now().year),
         lastDate: DateTime(DateTime.now().year + 10));
@@ -306,19 +345,6 @@ enum ColorType {
     Colors.grey,
   ];
 
-  static const List<String> showColors = [
-    '黑色',
-    '红色',
-    '橙色',
-    '黄色',
-    '绿色',
-    '蓝色',
-    '紫色',
-    '粉色',
-    '棕色',
-    '灰色',
-  ];
-
   static ColorType fromColorIndex(int value) {
     return ColorType.values[value];
   }
@@ -327,8 +353,31 @@ enum ColorType {
     return colors[index];
   }
 
-  @override
-  toString() => showColors[index];
+  getShowStr(BuildContext context) {
+    var localizations = WishLocalizations.of(context)!;
+    switch (this) {
+      case ColorType.black:
+        return localizations.wishBlack;
+      case ColorType.red:
+        return localizations.wishRed;
+      case ColorType.orange:
+        return localizations.wishOrange;
+      case ColorType.yellow:
+        return localizations.wishYellow;
+      case ColorType.green:
+        return localizations.wishGreen;
+      case ColorType.blue:
+        return localizations.wishBlue;
+      case ColorType.purple:
+        return localizations.wishPurple;
+      case ColorType.pink:
+        return localizations.wishPink;
+      case ColorType.brown:
+        return localizations.wishBrown;
+      case ColorType.grey:
+        return localizations.wishGrey;
+    }
+  }
 }
 
 class ColorPicker extends StatefulWidget {

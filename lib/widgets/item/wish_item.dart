@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:wish/data/wish_data.dart';
-import 'package:wish/themes/gallery_theme_data.dart';
+import 'package:wish/themes/wish_theme_data.dart';
 import 'package:wish/utils/timeUtils.dart';
 import 'package:wish/widgets/item/progress_circle.dart';
+import 'package:flutter_gen/gen_l10n/wish_localizations.dart';
 
 class WishItem extends StatelessWidget {
   final WishData itemData;
@@ -47,22 +48,22 @@ class WishItem extends StatelessWidget {
             const SizedBox(
               width: 10,
             ),
-            _buildEndTime(colorScheme),
+            _buildEndTime(context, colorScheme),
           ],
         );
       } else {
-        optionRow = _buildEndTime(colorScheme);
+        optionRow = _buildEndTime(context, colorScheme);
       }
     } else {
       optionRow = Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _buildCompletion(),
+          _buildCompletion(context),
           const SizedBox(
             width: 10,
           ),
-          _buildEndTime(colorScheme),
+          _buildEndTime(context, colorScheme),
         ],
       );
     }
@@ -76,7 +77,7 @@ class WishItem extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: isLight ? colorScheme.secondary : colorScheme.primaryContainer,
-          border: isLight ? null : Border.all(color: GalleryThemeData.darkGreenBorderColor, width: 1),
+          border: isLight ? null : Border.all(color: WishThemeData.darkGreenBorderColor, width: 1),
           boxShadow: isLight
               ? [
                   BoxShadow(
@@ -114,7 +115,7 @@ class WishItem extends StatelessWidget {
                   const SizedBox(
                     height: 3,
                   ),
-                  _buildIconTagLayout(colorScheme),
+                  _buildIconTagLayout(context, colorScheme),
                   const SizedBox(
                     height: 4,
                   ),
@@ -129,8 +130,8 @@ class WishItem extends StatelessWidget {
     );
   }
 
-  Widget _buildIconTagLayout(ColorScheme colorScheme) {
-    final String label = itemData.wishType.toString();
+  Widget _buildIconTagLayout(BuildContext context, ColorScheme colorScheme) {
+    final String label = itemData.wishType.getShowTitle(context);
     final IconData icon;
     switch (itemData.wishType) {
       case WishType.wish:
@@ -143,6 +144,7 @@ class WishItem extends StatelessWidget {
         icon = Icons.lock_clock;
         break;
     }
+    var localizations = WishLocalizations.of(context)!;
 
     return Row(
       children: [
@@ -159,28 +161,29 @@ class WishItem extends StatelessWidget {
           width: 6,
         ),
         if (sortType == SortType.createdTime)
-          Text('创建于${TimeUtils.getShowDate(itemData.createdTime!)}',
+          Text('${localizations.createdAt}${TimeUtils.getShowDate(itemData.createdTime!)}',
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300))
         else if (sortType == SortType.modifiedTime)
-          Text('修改于${TimeUtils.getShowDate(itemData.modifiedTime!)}',
+          Text('${localizations.modifiedAt}${TimeUtils.getShowDate(itemData.modifiedTime!)}',
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300)),
       ],
     );
   }
 
-  Widget _buildEndTime(ColorScheme colorScheme) {
+  Widget _buildEndTime(BuildContext context, ColorScheme colorScheme) {
+    WishLocalizations localizations = WishLocalizations.of(context)!;
     final String showText;
     if (itemData.endTime == null) {
-      showText = '无期限';
+      showText = localizations.timeNoLimit;
       return Text(showText, style: TextStyle(fontSize: 14, color: colorScheme.primary.withOpacity(0.2)));
     }
     // itemData.timeOfDay和now相差多少天
     int day = itemData.endTime!.difference(DateTime.now()).inDays;
     if (day < 0) {
-      showText = '心愿已过期${-day}天';
+      showText = localizations.timeExpired(-day);
       return Text(showText, style: const TextStyle(fontSize: 14, color: Colors.red));
     }
-    showText = '心愿剩余$day天';
+    showText = localizations.timeRemainingDay(day);
     if (day <= 3) {
       return Text(showText, style: TextStyle(fontSize: 14, color: Colors.red[300]));
     }
@@ -216,12 +219,11 @@ class WishItem extends StatelessWidget {
   }
 
   // 完成情况
-  Widget _buildCompletion() {
+  Widget _buildCompletion(BuildContext context) {
     if (itemData.wishType == WishType.repeat) {
-      return Text('${itemData.actualRepeatCount ?? 0}/${itemData.repeatCount}',
-          style: const TextStyle(fontSize: 14));
+      return Text('${itemData.actualRepeatCount ?? 0}/${itemData.repeatCount}', style: const TextStyle(fontSize: 14));
     } else {
-      return Text('已打卡次数: ${itemData.checkedTimeList?.length ?? 0}',
+      return Text('${WishLocalizations.of(context)!.checkInCount}: ${itemData.checkedTimeList?.length ?? 0}',
           style: const TextStyle(fontSize: 14));
     }
   }

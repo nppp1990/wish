@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/wish_localizations.dart';
 import 'package:wish/data/data_base_helper.dart';
 import 'package:wish/data/wish_data.dart';
 import 'package:wish/utils/struct.dart';
@@ -74,72 +75,74 @@ class WishOp {
     return time.toLocal().toString().substring(0, 16);
   }
 
-  String getShowTitle1(bool showLabelName) {
+  String getShowTitle1(BuildContext context, bool showLabelName) {
+    var localizations = WishLocalizations.of(context)!;
     switch (opType) {
       case WishOpType.create:
-        return '许下了心愿${showLabelName ? '：$wishName' : ''}';
+        return '${localizations.opTitleCreateWish}${showLabelName ? '：$wishName' : ''}';
       case WishOpType.delete:
-        return '丢下了心愿${showLabelName ? '：$wishName' : ''}';
+        return '${localizations.opTitleDelWish}${showLabelName ? '：$wishName' : ''}';
       case WishOpType.edit:
-        return '修改了心愿${showLabelName ? '：$wishName' : ''}';
+        return '${localizations.opTitleModifyWish}${showLabelName ? '：$wishName' : ''}';
       case WishOpType.done:
-        return isDone! ? '完成了心愿' : '取消完成心愿';
+        return isDone! ? localizations.opTitleDoneWish : localizations.opTitleUndoneWish;
       case WishOpType.doneStep:
-        return '更新了步骤';
+        return localizations.opTitleUpdatedSteps;
       case WishOpType.checkIn:
-        return '打卡一次';
+        return localizations.opTitleCheckIn;
       case WishOpType.updateCount:
-        return '更新了次数';
+        return localizations.opTitleUpdateCount;
       case WishOpType.pause:
-        return isPaused! ? '暂停了打卡任务' : '恢复了打卡任务';
+        return isPaused! ? localizations.opTitlePauseCheckIn : localizations.opTitleResumeCheckIn;
     }
   }
 
-  bool breakAddTitle(int index, List<EditDesc> res, key, value) {
+  bool breakAddTitle(WishLocalizations localizations, int index, List<EditDesc> res, key, value) {
     if (index <= 2) {
       return false;
     }
     if (index == 3) {
-      res.add(EditDesc('\n修改了'));
+      res.add(EditDesc('\n${localizations.opChangeFrom}'));
     }
     switch (key) {
       case EditType.name:
-        res.add(EditDesc('名字', isKey: true));
+        res.add(EditDesc(localizations.opName, isKey: true));
         res.add(EditDesc(' '));
         break;
       case EditType.wishType:
-        res.add(EditDesc('类型', isKey: true));
+        res.add(EditDesc(localizations.opType, isKey: true));
         res.add(EditDesc(' '));
         break;
       case EditType.colorType:
-        res.add(EditDesc('颜色', isKey: true));
+        res.add(EditDesc(localizations.opColor, isKey: true));
         res.add(EditDesc(' '));
         break;
       case EditType.note:
-        res.add(EditDesc('备注', isKey: true));
+        res.add(EditDesc(localizations.opNote, isKey: true));
         res.add(EditDesc(' '));
         break;
       case EditType.checkInTime:
-        res.add(EditDesc('打卡时间', isKey: true));
+        res.add(EditDesc(localizations.opCheckInTime, isKey: true));
         res.add(EditDesc(' '));
         break;
       case EditType.checkInPeriod:
-        res.add(EditDesc('打卡周期', isKey: true));
+        res.add(EditDesc(localizations.opCheckInPeriod, isKey: true));
         res.add(EditDesc(' '));
         break;
       case EditType.endTime:
-        res.add(EditDesc('截止时间', isKey: true));
+        res.add(EditDesc(localizations.opDeadline, isKey: true));
         res.add(EditDesc(' '));
         break;
       case EditType.stepList:
-        res.add(EditDesc('步骤', isKey: true));
+        res.add(EditDesc(localizations.opSteps, isKey: true));
         res.add(EditDesc(' '));
         break;
       case EditType.repeatCount:
-        res.add(EditDesc('次数', isKey: true));
+        res.add(EditDesc(localizations.opRepeatCount, isKey: true));
         res.add(EditDesc(' '));
         break;
       case EditType.isSecret:
+        // todo
         res.add(EditDesc('是否保密', isKey: true));
         res.add(EditDesc(' '));
         break;
@@ -147,16 +150,17 @@ class WishOp {
     return true;
   }
 
-  _addPreInfo(List<EditDesc> res, String key, {String? value}) {
-    res.add(EditDesc('\n修改了'));
+  _addPreInfo(WishLocalizations localizations, List<EditDesc> res, String key, {String? value}) {
+    res.add(EditDesc('\n${localizations.opChangeFrom}'));
     res.add(EditDesc(key, isKey: true));
-    res.add(EditDesc('为'));
+    res.add(EditDesc(localizations.opChangeTo));
     if (value != null) {
       res.add(EditDesc(value, isKey: true));
     }
   }
 
-  Pair<List<EditDesc>, int>? getShowTitle2() {
+  Pair<List<EditDesc>, int>? getShowTitle2(BuildContext context) {
+    var localizations = WishLocalizations.of(context)!;
     if (opEdit != null && opEdit!.editMap.isNotEmpty) {
       List<EditDesc> res = [];
       int index = 0;
@@ -164,72 +168,72 @@ class WishOp {
         switch (key) {
           case EditType.name:
             index++;
-            if (breakAddTitle(index, res, key, value)) {
+            if (breakAddTitle(localizations, index, res, key, value)) {
               break;
             }
-            _addPreInfo(res, '名字', value: value);
+            _addPreInfo(localizations, res, localizations.opName, value: value);
             break;
           case EditType.wishType:
             index++;
-            if (breakAddTitle(index, res, key, value)) {
+            if (breakAddTitle(localizations, index, res, key, value)) {
               break;
             }
-            _addPreInfo(res, '类型', value: WishType.values[value].name);
+            _addPreInfo(localizations, res, localizations.opType, value: WishType.values[value].name);
             break;
           case EditType.colorType:
             index++;
-            if (breakAddTitle(index, res, key, value)) {
+            if (breakAddTitle(localizations, index, res, key, value)) {
               break;
             }
-            _addPreInfo(res, '颜色');
+            _addPreInfo(localizations, res, localizations.opColor);
             res.add(
-                EditDesc(ColorType.values[value].toString(), isKey: true, color: ColorType.values[value].toColor()));
+                EditDesc(ColorType.values[value].getShowStr(context), isKey: true, color: ColorType.values[value].toColor()));
             break;
           case EditType.note:
             index++;
-            if (breakAddTitle(index, res, key, value)) {
+            if (breakAddTitle(localizations, index, res, key, value)) {
               break;
             }
-            res.add(EditDesc('\n修改了备注'));
+            res.add(EditDesc('\n${localizations.opModifyNote}'));
             break;
           case EditType.checkInTime:
             index++;
-            if (breakAddTitle(index, res, key, value)) {
+            if (breakAddTitle(localizations, index, res, key, value)) {
               break;
             }
-            _addPreInfo(res, '打卡时间', value: TimeUtils.getShowDateFromTimeStr(value));
+            _addPreInfo(localizations, res, localizations.opCheckInTime, value: TimeUtils.getShowTimeFromTimeStr(value));
             break;
           case EditType.checkInPeriod:
             index++;
-            if (breakAddTitle(index, res, key, value)) {
+            if (breakAddTitle(localizations, index, res, key, value)) {
               break;
             }
-            _addPreInfo(res, '打卡周期', value: '$value天');
+            _addPreInfo(localizations, res, localizations.opCheckInPeriod, value: '$value天');
             break;
           case EditType.endTime:
             index++;
-            if (breakAddTitle(index, res, key, value)) {
+            if (breakAddTitle(localizations, index, res, key, value)) {
               break;
             }
-            _addPreInfo(res, '截止时间', value: TimeUtils.getShowDateFromTimeStr(value));
+            _addPreInfo(localizations, res, localizations.opDeadline, value: TimeUtils.getShowDateFromTimeStamp(value));
             break;
           case EditType.stepList:
             index++;
-            if (breakAddTitle(index, res, key, value)) {
+            if (breakAddTitle(localizations, index, res, key, value)) {
               break;
             }
-            res.add(EditDesc('\n修改了步骤'));
+            res.add(EditDesc('\n${localizations.opModifiedStep}'));
             break;
           case EditType.repeatCount:
             index++;
-            if (breakAddTitle(index, res, key, value)) {
+            if (breakAddTitle(localizations, index, res, key, value)) {
               break;
             }
-            _addPreInfo(res, '重复次数', value: value.toString());
+            _addPreInfo(localizations, res, localizations.opRepeatCount, value: value.toString());
             break;
           case EditType.isSecret:
             index++;
-            if (breakAddTitle(index, res, key, value)) {
+            if (breakAddTitle(localizations, index, res, key, value)) {
               break;
             }
             // todo
@@ -245,15 +249,15 @@ class WishOp {
       final firstDesc = EditDesc(res[0].value.substring(1));
       res[0] = firstDesc;
       if (index > 2) {
-        res.add(EditDesc('等信息'));
+        res.add(EditDesc(localizations.opOtherInfo));
       }
 
       return Pair(res, index > 2 ? 3 : index);
     }
     if (opDoneStep != null) {
       List<EditDesc> res = [];
-      res.add(EditDesc(opDoneStep!.done ? '完成了' : '取消完成了', isKey: true));
-      res.add(EditDesc('步骤${opDoneStep!.index + 1}'));
+      res.add(EditDesc(opDoneStep!.done ? localizations.opDoneStep : localizations.opUndoneStep, isKey: true));
+      res.add(EditDesc('${localizations.opSteps}${opDoneStep!.index + 1}'));
       return Pair(res, 1);
     }
     if (opRepeatCount != null) {
@@ -304,8 +308,6 @@ class OpEdit {
   }
 
   factory OpEdit.fromMap(String value) {
-    print('---value：$value');
-    print('---eee:${json.decode(value).map((key, value) => MapEntry(EditType.values[int.parse(key)], value))}');
     return OpEdit(
       json.decode(value).map((key, value) => MapEntry(EditType.values[int.parse(key)], value)),
     );

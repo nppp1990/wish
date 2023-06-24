@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/wish_localizations.dart';
 import 'package:wish/data/style/wish_options.dart';
 import 'package:wish/widgets/common/settings_list_item.dart';
 
@@ -21,13 +22,10 @@ enum _ExpandableSetting {
   theme,
 }
 
-class _SettingPageState extends State<SettingPage> with SingleTickerProviderStateMixin{
+class _SettingPageState extends State<SettingPage> with SingleTickerProviderStateMixin {
   _ExpandableSetting? _expandedSettingId;
   late AnimationController _controller;
   late Animation<double> _staggerSettingsItemsAnimation;
-
-  late Locale _testLocaleOption;
-
 
   @override
   void initState() {
@@ -45,7 +43,6 @@ class _SettingPageState extends State<SettingPage> with SingleTickerProviderStat
         curve: Curves.ease,
       ),
     );
-    _testLocaleOption = const Locale('zh');
   }
 
   @override
@@ -72,70 +69,71 @@ class _SettingPageState extends State<SettingPage> with SingleTickerProviderStat
     }
   }
 
-
-
-  // todo
   final systemLocaleOption = const Locale('system');
 
-  // todo
-  LinkedHashMap<Locale, DisplayOption> _getLocaleOptions() {
-    LinkedHashMap<Locale, DisplayOption> testMap = LinkedHashMap<Locale, DisplayOption>();
-    testMap[const Locale('system')] = DisplayOption('系统', subtitle: '123');
-    testMap[const Locale('zh')] = DisplayOption('简体中文', subtitle: '中国');
-    testMap[const Locale('en')] = DisplayOption('English', subtitle: 'United States');
-    return testMap;
+  LinkedHashMap<Locale, DisplayOption> _getLocaleOptions(BuildContext context) {
+    var supportedLocales = List<Locale>.from(WishLocalizations.supportedLocales);
+    LinkedHashMap<Locale, DisplayOption> map = LinkedHashMap<Locale, DisplayOption>();
+    var localizations = WishLocalizations.of(context)!;
+    map[systemLocaleOption] = DisplayOption(localizations.settingsSystemDefault);
+    for (var locale in supportedLocales) {
+      if (locale.languageCode.toLowerCase() == 'zh') {
+        map[locale] = DisplayOption('中文', subtitle: '简体中文');
+      } else if (locale.languageCode.toLowerCase() == 'en') {
+        map[locale] = DisplayOption('English', subtitle: localizations.localeEn);
+      }
+    }
+    return map;
   }
 
   @override
   Widget build(BuildContext context) {
     final options = WishOptions.of(context);
-
+    WishLocalizations localizations = WishLocalizations.of(context)!;
+    HookData.instance.updateLabelWidth(Localizations.localeOf(context).languageCode);
     final settingsListItems = [
       SettingsListItem<Locale?>(
-        title: '语言区域',
-        selectedOption: _testLocaleOption,
-        optionsMap: _getLocaleOptions(),
+        title: localizations.settingsLocale,
+        selectedOption: options.locale ?? systemLocaleOption,
+        optionsMap: _getLocaleOptions(context),
         onOptionChanged: (newLocale) {
-          print('---- newLocale: $newLocale');
-          // if (newLocale == systemLocaleOption) {
-          //   newLocale = deviceLocale;
-          // }
-          // GalleryOptions.update(
-          //   context,
-          //   options.copyWith(locale: newLocale),
-          // );
-          setState(() {
-            _testLocaleOption = newLocale!;
-          });
+          setLastLocale(newLocale);
+          if (newLocale == systemLocaleOption) {
+            WishOptions.update(
+              context,
+              options.copyWith(locale: null, forceLocale: true),
+            );
+          } else {
+            WishOptions.update(
+              context,
+              options.copyWith(locale: newLocale),
+            );
+          }
         },
         onTapSetting: () => onTapSetting(_ExpandableSetting.locale),
         isExpanded: _expandedSettingId == _ExpandableSetting.locale,
       ),
       SettingsListItem<ThemeMode?>(
-        title: '主题背景',
+        title: localizations.settingsTheme,
         selectedOption: options.themeMode,
         optionsMap: LinkedHashMap.of({
-          ThemeMode.light: DisplayOption(
-              '浅色'
-          ),
-          ThemeMode.dark: DisplayOption(
-            '深色'
-          ),
+          ThemeMode.system: DisplayOption(localizations.settingsSystemDefault),
+          ThemeMode.light: DisplayOption(localizations.settingsLightTheme),
+          ThemeMode.dark: DisplayOption(localizations.settingsDarkTheme),
         }),
         onOptionChanged: (mode) {
+          saveLastTheme(mode!.index);
           WishOptions.update(context, options.copyWith(themeMode: mode!));
         },
         onTapSetting: () => onTapSetting(_ExpandableSetting.theme),
         isExpanded: _expandedSettingId == _ExpandableSetting.theme,
       ),
-      ToggleSetting(text: '123', value: false, onChanged: (v){
-
-      })
+      ToggleSetting(text: '123', value: false, onChanged: (v) {})
     ];
 
     return Scaffold(
         appBar: AppBar(
-          title: const Text('设置'),
+          title: Text(localizations.setting),
         ),
         body: Padding(
           padding: const EdgeInsets.only(top: 30),

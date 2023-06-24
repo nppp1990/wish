@@ -4,21 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:wish/data/data_base_helper.dart';
 import 'package:wish/utils/timeUtils.dart';
 import 'package:wish/widgets/picker.dart';
+import 'package:flutter_gen/gen_l10n/wish_localizations.dart';
 
 enum SortType {
   name,
   createdTime,
   modifiedTime;
 
-  @override
-  String toString() {
+  String getShowTitle(BuildContext context) {
+    WishLocalizations localizations = WishLocalizations.of(context)!;
     switch (this) {
       case SortType.name:
-        return '名称';
+        return localizations.sortByName;
       case SortType.createdTime:
-        return '创建时间';
+        return localizations.sortByCreatedTime;
       case SortType.modifiedTime:
-        return '修改时间';
+        return localizations.sortByModifyTime;
     }
   }
 }
@@ -28,15 +29,15 @@ enum WishType {
   repeat,
   checkIn;
 
-  @override
-  String toString() {
+  String getShowTitle(BuildContext context) {
+    WishLocalizations localizations = WishLocalizations.of(context)!;
     switch (this) {
       case WishType.wish:
-        return '心愿';
+        return localizations.typeWish;
       case WishType.repeat:
-        return '重复';
+        return localizations.typeRepeat;
       case WishType.checkIn:
-        return '打卡';
+        return localizations.typeCheckIn;
     }
   }
 }
@@ -166,14 +167,10 @@ class WishData {
       DatabaseHelper.fieldEndTime: TimeUtils.getDbTime(endTime),
       DatabaseHelper.fieldDone: done ? 1 : 0,
       DatabaseHelper.fieldPaused: paused ? 1 : 0,
-      DatabaseHelper.fieldStepList: stepList == null
-          ? null
-          : json.encode(stepList?.map((e) => e.toMap()).toList()),
+      DatabaseHelper.fieldStepList: stepList == null ? null : json.encode(stepList?.map((e) => e.toMap()).toList()),
       DatabaseHelper.fieldIsSecret: isSecret ? 1 : 0,
-      DatabaseHelper.fieldCheckedTimeList: checkedTimeList == null
-          ? null
-          : json.encode(
-              checkedTimeList?.map((e) => TimeUtils.getDbTime(e)).toList()),
+      DatabaseHelper.fieldCheckedTimeList:
+          checkedTimeList == null ? null : json.encode(checkedTimeList?.map((e) => TimeUtils.getDbTime(e)).toList()),
       DatabaseHelper.fieldRepeatCount: repeatCount,
       DatabaseHelper.fieldCreatedTime: TimeUtils.getDbTime(createdTime),
       DatabaseHelper.fieldModifiedTime: TimeUtils.getDbTime(modifiedTime),
@@ -249,9 +246,7 @@ class WishData {
       return null;
     }
     List<dynamic> list = jsonDecode(checkedTimeList);
-    return list
-        .map((e) => DateTime.fromMillisecondsSinceEpoch(e * 1000))
-        .toList();
+    return list.map((e) => DateTime.fromMillisecondsSinceEpoch(e * 1000)).toList();
   }
 
   factory WishData.fromMap(Map<String, dynamic> map) {
@@ -261,8 +256,7 @@ class WishData {
       wishType: WishType.values[map[DatabaseHelper.fieldWishType]],
       colorType: ColorType.values[map[DatabaseHelper.fieldColorType]],
       note: map[DatabaseHelper.fieldNote],
-      checkInTime:
-          TimeUtils.fromCheckInTime(map[DatabaseHelper.fieldCheckInTime]),
+      checkInTime: TimeUtils.fromCheckInTime(map[DatabaseHelper.fieldCheckInTime]),
       periodDays: map[DatabaseHelper.fieldPeriodDays],
       checkedTimeList: map[DatabaseHelper.fieldCheckedTimeList] == null
           ? null
@@ -274,8 +268,7 @@ class WishData {
       repeatCount: map[DatabaseHelper.fieldRepeatCount],
       actualRepeatCount: map[DatabaseHelper.fieldActualRepeatCount],
       createdTime: TimeUtils.parseDbTime(map[DatabaseHelper.fieldCreatedTime]),
-      modifiedTime:
-          TimeUtils.parseDbTime(map[DatabaseHelper.fieldModifiedTime]),
+      modifiedTime: TimeUtils.parseDbTime(map[DatabaseHelper.fieldModifiedTime]),
     );
   }
 }

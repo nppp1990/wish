@@ -1,5 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:wish/data/style/wish_options.dart';
 
 class ItemWrap extends StatelessWidget {
   final String itemLabel;
@@ -19,7 +20,7 @@ class ItemWrap extends StatelessWidget {
     Widget labelView;
     var colorScheme = Theme.of(context).colorScheme;
     if (onLabelPressed == null) {
-      labelView =  Positioned(
+      labelView = Positioned(
           left: 20,
           top: 0,
           child: Container(
@@ -33,7 +34,7 @@ class ItemWrap extends StatelessWidget {
             ),
           ));
     } else {
-      labelView =  Positioned(
+      labelView = Positioned(
           left: 20,
           top: -5,
           child: Container(
@@ -77,12 +78,13 @@ class ItemWrapLabelRow extends StatelessWidget {
   final String value;
   final bool isLabelGray;
   final Widget? extra;
-  final double labelWidth = 90;
 
-  const ItemWrapLabelRow({super.key, required this.label, required this.value, this.isLabelGray = false, this.extra});
+  const ItemWrapLabelRow(
+      {super.key, required this.label, required this.value, this.isLabelGray = false, this.extra});
 
   @override
   Widget build(BuildContext context) {
+    double labelWidth = HookData.instance.labelWidth;
     if (isLabelGray) {
       return Row(
         children: [

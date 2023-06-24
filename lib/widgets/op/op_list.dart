@@ -41,7 +41,7 @@ class OpItem extends StatelessWidget {
     var colorScheme = Theme.of(context).colorScheme;
     final showName = option?.showName ?? false;
     final lineColor = colorScheme.primary.withOpacity(0.2);
-    final subTitlePair = op.getShowTitle2();
+    final subTitlePair = op.getShowTitle2(context);
     final double itemHeight;
     if (subTitlePair == null) {
       itemHeight = 70.0 + (showName ? 15.0 : 0.0);
@@ -50,7 +50,7 @@ class OpItem extends StatelessWidget {
     }
     var subTitle = subTitlePair?.first;
     var labelText = Text(
-      op.getShowTitle1(!showName),
+      op.getShowTitle1(context, !showName),
       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
     );
 

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+
 class PlatformUtils {
   PlatformUtils._internal();
 

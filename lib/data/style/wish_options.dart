@@ -2,17 +2,88 @@ import 'dart:async';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_storage/get_storage.dart';
+
+// Fake locale to represent the system Locale option.
+
+// Locale? _deviceLocale;
+//
+// Locale? get deviceLocale => _deviceLocale;
+
+// set deviceLocale(Locale? locale) {
+//   _deviceLocale ??= locale;
+// }
+
+const _localeKey = 'key_locale';
+const _themeKey = 'key_theme';
+
+get lastLocale {
+  String? code = GetStorage().read(_localeKey);
+  if (code == null) {
+    return null;
+  }
+  switch (code.toLowerCase()) {
+    case 'zh':
+      return const Locale('zh');
+    case 'en':
+      return const Locale('en');
+    default:
+      return null;
+  }
+}
+
+setLastLocale(Locale? locale) => GetStorage().write(_localeKey, locale?.languageCode);
+
+saveLastTheme(int index) {
+  GetStorage().write(_themeKey, index);
+}
+
+get lastTheme {
+  int? index = GetStorage().read(_themeKey);
+  if (index == null) {
+    return ThemeMode.system;
+  }
+  return ThemeMode.values[index];
+}
+
+class HookData {
+  HookData._internal();
+
+  static final HookData instance = HookData._internal();
+
+  double labelWidth = 90;
+  double? switchLabelWidth;
+  double? pickerLabelWidth;
+  bool isChinese = true;
+
+  updateLabelWidth(String? languageCode) {
+    print('----lc: $languageCode');
+    if (languageCode == 'zh') {
+      isChinese = true;
+      labelWidth = 90;
+      switchLabelWidth = null;
+      pickerLabelWidth = null;
+    } else {
+      isChinese = false;
+      labelWidth = 130;
+      switchLabelWidth = 65;
+      pickerLabelWidth = 80;
+    }
+  }
+}
 
 class WishOptions {
   const WishOptions({
     required this.themeMode,
     // required double? textScaleFactor,
     // required this.customTextDirection,
-    // required Locale? locale,
+    required this.locale,
     // required this.timeDilation,
     required this.platform,
     required this.isTestMode,
   });
+
+  // : _locale = locale;
 
   // : _textScaleFactor = textScaleFactor ?? 1.0,
   //   _locale = locale;
@@ -21,7 +92,8 @@ class WishOptions {
 
   // final double _textScaleFactor;
   // final CustomTextDirection customTextDirection;
-  // final Locale? _locale;
+  final Locale? locale;
+
   // final double timeDilation;
   final TargetPlatform? platform;
   final bool isTestMode; // True for integration tests.
@@ -84,7 +156,8 @@ class WishOptions {
     ThemeMode? themeMode,
     // double? textScaleFactor,
     // CustomTextDirection? customTextDirection,
-    // Locale? locale,
+    bool? forceLocale,
+    Locale? locale,
     double? timeDilation,
     TargetPlatform? platform,
     bool? isTestMode,
@@ -93,7 +166,7 @@ class WishOptions {
       themeMode: themeMode ?? this.themeMode,
       // textScaleFactor: textScaleFactor ?? _textScaleFactor,
       // customTextDirection: customTextDirection ?? this.customTextDirection,
-      // locale: locale ?? this.locale,
+      locale: forceLocale == true ? locale : locale ?? this.locale,
       // timeDilation: timeDilation ?? this.timeDilation,
       platform: platform ?? this.platform,
       isTestMode: isTestMode ?? this.isTestMode,
@@ -106,17 +179,19 @@ class WishOptions {
       themeMode == other.themeMode &&
       // _textScaleFactor == other._textScaleFactor &&
       // customTextDirection == other.customTextDirection &&
-      // locale == other.locale &&
+      locale == other.locale &&
       // timeDilation == other.timeDilation &&
       platform == other.platform &&
       isTestMode == other.isTestMode;
+
+  // Locale? get locale => _locale ?? deviceLocale;
 
   @override
   int get hashCode => Object.hash(
         themeMode,
         // _textScaleFactor,
         // customTextDirection,
-        // locale,
+        locale,
         timeDilation,
         platform,
         isTestMode,

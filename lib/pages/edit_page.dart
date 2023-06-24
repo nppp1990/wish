@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/wish_localizations.dart';
 import 'package:wish/data/data_base_helper.dart';
 import 'package:wish/data/event_manager.dart';
 import 'package:wish/data/wish_data.dart';
-import 'package:wish/themes/gallery_theme_data.dart';
+import 'package:wish/themes/wish_theme_data.dart';
 import 'package:wish/utils/dialogs.dart';
 import 'package:wish/utils/example.dart';
 import 'package:wish/utils/struct.dart';
@@ -43,15 +44,16 @@ class EditPage extends StatelessWidget {
   Widget build(BuildContext context) {
     var showActionBtn = pageType == WishPageType.create || pageType == WishPageType.edit;
     final String title;
+    var localizations = WishLocalizations.of(context)!;
     if (pageType == WishPageType.edit) {
-      title = '编辑心愿';
+      title = localizations.editWishTitle;
     } else {
       if (wishType == WishType.repeat) {
-        title = '创建重复任务';
+        title = localizations.createRepeatTaskTitle;
       } else if (wishType == WishType.checkIn) {
-        title = '创建打卡任务';
+        title = localizations.createCheckInTaskTitle;
       } else {
-        title = '创建心愿';
+        title = localizations.createWishTitle;
       }
     }
     List<Widget> actions;
@@ -59,9 +61,9 @@ class EditPage extends StatelessWidget {
       actions = [
         TextButton(
             onPressed: save,
-            child: const Text(
-              '保存',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+            child: Text(
+              localizations.save,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
             )),
       ];
     } else {
@@ -71,9 +73,9 @@ class EditPage extends StatelessWidget {
           onPressed: () {
             delete(context, wishData!);
           },
-          icon: const Tooltip(message: '删除', child: Icon(Icons.delete_outline)),
+          icon: Tooltip(message: localizations.delete, child: const Icon(Icons.delete_outline)),
         ),
-        IconButton(onPressed: save, icon: const Tooltip(message: '保存', child: Icon(Icons.save_outlined)))
+        IconButton(onPressed: save, icon: Tooltip(message: localizations.save, child: const Icon(Icons.save_outlined)))
       ];
     }
 
@@ -100,19 +102,19 @@ class EditPage extends StatelessWidget {
             final exit = await showDialog(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                      title: const Text('是否退出编辑？'),
-                      content: const Text('退出后，当前编辑内容将不会被保存'),
+                      title: Text(localizations.dialogExitTitle),
+                      content: Text(localizations.dialogExitContent),
                       actions: [
                         TextButton(
                             onPressed: () {
                               Navigator.of(context).pop(true);
                             },
-                            child: const Text('退出')),
+                            child: Text(localizations.exit)),
                         TextButton(
                             onPressed: () {
                               Navigator.of(context).pop(false);
                             },
-                            child: const Text('取消')),
+                            child: Text(localizations.cancel)),
                       ],
                     ));
             return exit;
@@ -214,7 +216,7 @@ class _EditPageViewState extends State<EditPageView> {
   @override
   Widget build(BuildContext context) {
     var isCreateMode = widget.pageType == WishPageType.create;
-    debugPrint('init checkInTime: ${widget.wishData?.periodDays}');
+    var localizations = WishLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,9 +236,9 @@ class _EditPageViewState extends State<EditPageView> {
             if (isCreateMode)
               SelectRadioGroup<WishType>(
                 items: [
-                  MenuItem(value: WishType.wish, name: '心想事成'),
-                  MenuItem(value: WishType.repeat, name: '重复任务'),
-                  MenuItem(value: WishType.checkIn, name: '打卡任务'),
+                  MenuItem(value: WishType.wish, name: localizations.radioWish),
+                  MenuItem(value: WishType.repeat, name: localizations.radioRepeat),
+                  MenuItem(value: WishType.checkIn, name: localizations.radioCheckIn),
                 ],
                 initialIndex: _currentType,
                 onChanged: (MenuItem item) {
@@ -267,8 +269,8 @@ class _EditPageViewState extends State<EditPageView> {
             else if (_currentType == 1)
               Row(
                 children: [
-                  const Expanded(
-                    child: Label(text: '重复次数'),
+                  Expanded(
+                    child: Label(text: localizations.opRepeatCount),
                   ),
                   WishSwitcher(
                     initCount: widget.wishData?.repeatCount ?? 1,
@@ -382,21 +384,22 @@ class _EditPageViewState extends State<EditPageView> {
       return;
     }
     var nameResult = _nameInputKey.currentState!.getResult();
+    var localizations = WishLocalizations.of(context)!;
     if (nameResult.first.isEmpty) {
-      DialogUtils.showToast(context, '请填写心愿名');
+      DialogUtils.showToast(context, localizations.editErrorForName);
       return -1;
     }
 
     if (_currentType == WishType.wish.index) {
-      DialogUtils.showToast(context, '心愿步骤不能为空');
+      DialogUtils.showToast(context, localizations.editErrorForSteps);
       return -1;
     }
 
     if (_currentType == WishType.checkIn.index) {
       if (_dayTimeKey.currentState?.getResult() == null) {
-        DialogUtils.showToast(context, '请填写打卡时间');
+        DialogUtils.showToast(context, localizations.editErrorForTime);
       } else {
-        DialogUtils.showToast(context, '请填写间隔天数');
+        DialogUtils.showToast(context, localizations.editErrorForPeriod);
       }
       return -1;
     }
@@ -428,6 +431,7 @@ class _NameInputState extends State<NameInput> with ResultMixin<Pair<String, Col
   Widget build(BuildContext context) {
     bool isLight = Theme.of(context).brightness == Brightness.light;
     var colorScheme = Theme.of(context).colorScheme;
+    var localizations = WishLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
@@ -442,7 +446,7 @@ class _NameInputState extends State<NameInput> with ResultMixin<Pair<String, Col
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   width: 3,
-                  color: isLight ? colorScheme.primary : GalleryThemeData.darkGreenBorderColor,
+                  color: isLight ? colorScheme.primary : WishThemeData.darkGreenBorderColor,
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
               ),
@@ -467,8 +471,8 @@ class _NameInputState extends State<NameInput> with ResultMixin<Pair<String, Col
                       ),
                     )
                   : null,
-              hintText: '写一个好记的心愿名',
-              labelText: '心愿名',
+              hintText: localizations.nameInputHint,
+              labelText: localizations.nameInputLabel,
             ),
             onChanged: (value) {
               setState(() {});
@@ -526,6 +530,7 @@ class DescInput extends StatelessWidget with ResultMixin<String> {
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
     var isLight = Theme.of(context).brightness == Brightness.light;
+    var localizations = WishLocalizations.of(context)!;
     return TextField(
       controller: _descController,
       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
@@ -539,7 +544,7 @@ class DescInput extends StatelessWidget with ResultMixin<String> {
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
             width: 3,
-            color: isLight ? colorScheme.primary : GalleryThemeData.darkGreenBorderColor,
+            color: isLight ? colorScheme.primary : WishThemeData.darkGreenBorderColor,
           ),
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
@@ -550,8 +555,8 @@ class DescInput extends StatelessWidget with ResultMixin<String> {
           ),
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
-        hintText: '记录这个愿望的初衷，或者写几句激励自己的话吧',
-        labelText: '备注',
+        hintText: localizations.noteInputHint,
+        labelText: localizations.noteInputLabel,
       ),
     );
   }
@@ -597,11 +602,12 @@ class _StepLayoutState extends State<StepLayout>
   @override
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
+    var localizations = WishLocalizations.of(context)!;
     final content = Column(
       children: [
         Row(
           children: [
-            const Expanded(child: Label(text: '做好规划、一步一步完成的心愿')),
+            Expanded(child: Label(text: localizations.stepTips)),
             OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(width: 2, color: colorScheme.primary),
@@ -622,7 +628,7 @@ class _StepLayoutState extends State<StepLayout>
                     }
                   });
                 },
-                child: const Text('添加步骤')),
+                child: Text(localizations.stepAddBtn)),
           ],
         ),
         for (int i = 0; i < itemSize; i++)
@@ -640,7 +646,8 @@ class _StepLayoutState extends State<StepLayout>
             },
             canDelete: () {
               if (_currentStep[i].done) {
-                return DialogUtils.showModal(context, '删除', '取消', content: '删除已完成的步骤无法恢复，确定删除吗？', yesColor: Colors.red);
+                return DialogUtils.showModal(context, localizations.delete, localizations.cancel,
+                    content: localizations.stepDelTip, yesColor: Colors.red);
               }
               return Future.value(true);
             },
@@ -771,7 +778,7 @@ class _StepInputState extends State<StepInput> with SingleTickerProviderStateMix
                     borderSide: BorderSide(color: colorTheme.primary, width: 2),
                   ),
                   contentPadding: const EdgeInsets.only(bottom: 4, left: 2, right: 2),
-                  hintText: '请输入步骤',
+                  hintText: WishLocalizations.of(context)!.stepHint,
                 ),
               )),
               IconButton(

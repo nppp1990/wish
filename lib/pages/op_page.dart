@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/wish_localizations.dart';
 import 'package:wish/data/data_base_helper.dart';
 import 'package:wish/data/event_manager.dart';
+import 'package:wish/data/style/wish_options.dart';
 import 'package:wish/data/wish_data.dart';
 import 'package:wish/data/wish_op.dart';
 import 'package:wish/pages/edit_page.dart';
@@ -15,8 +17,6 @@ import 'package:wish/widgets/op/radio_check.dart';
 import 'package:wish/widgets/op/radius_line.dart';
 import 'package:wish/widgets/switch_num.dart';
 
-const double labelWidth = 90.0;
-
 class OpPage extends StatefulWidget {
   final WishData itemData;
   final int index;
@@ -28,14 +28,12 @@ class OpPage extends StatefulWidget {
 }
 
 class _OpPageState extends State<OpPage> {
-  final GlobalKey<_OpPageViewState> opPageViewKey =
-      GlobalKey<_OpPageViewState>();
+  final GlobalKey<_OpPageViewState> opPageViewKey = GlobalKey<_OpPageViewState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: OpPageView(
-          key: opPageViewKey, itemData: widget.itemData, index: widget.index),
+      body: OpPageView(key: opPageViewKey, itemData: widget.itemData, index: widget.index),
       floatingActionButton: DoneFloatButton(
         wishData: widget.itemData,
         index: widget.index,
@@ -84,8 +82,7 @@ class _DoneFloatButtonState extends State<DoneFloatButton> {
     return FloatingActionButton(
       tooltip: _done ? '直接取消' : '取消完成',
       onPressed: () async {
-        bool? res = await _showDoneChangedDialog(
-            context, widget.wishData, _done, widget.canDone());
+        bool? res = await _showDoneChangedDialog(context, widget.wishData, _done, widget.canDone());
         if (res ?? false) {
           _handleDoneOp(!_done);
           setState(() {
@@ -96,24 +93,20 @@ class _DoneFloatButtonState extends State<DoneFloatButton> {
       backgroundColor: Colors.white,
       child: Icon(
         size: 40,
-        _done
-            ? Icons.radio_button_checked_outlined
-            : Icons.radio_button_unchecked_outlined,
+        _done ? Icons.radio_button_checked_outlined : Icons.radio_button_unchecked_outlined,
         color: Colors.black,
       ),
     );
   }
 
-  Future<bool?> _showDoneChangedDialog(BuildContext context, WishData wishData,
-      bool curStatus, dynamic opResult) {
+  Future<bool?> _showDoneChangedDialog(BuildContext context, WishData wishData, bool curStatus, dynamic opResult) {
     if (curStatus) {
       return _showDoneSureDialog(context, title: '确定要取消完成吗？');
     }
     final String? content;
     if (wishData.wishType == WishType.wish) {
       if (wishData.stepList?.isNotEmpty ?? false) {
-        var count =
-            (opResult as List<bool>).where((element) => !element).length;
+        var count = (opResult as List<bool>).where((element) => !element).length;
         if (count == 0) {
           content = null;
         } else {
@@ -128,8 +121,7 @@ class _DoneFloatButtonState extends State<DoneFloatButton> {
     return _showDoneSureDialog(context, title: '确定要完成心愿吗？', content: content);
   }
 
-  Future<bool?> _showDoneSureDialog(BuildContext context,
-      {required String title, String? content}) {
+  Future<bool?> _showDoneSureDialog(BuildContext context, {required String title, String? content}) {
     return showDialog(
         context: context,
         builder: (context) {
@@ -196,14 +188,14 @@ class _OpPageViewState extends State<OpPageView> {
                 child: RadiusLine(
                   width: 15,
                   height: 40,
-                  color: Colors.black.withOpacity(0.2),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.only(left: 40, right: 20, top: 10),
+              Padding(
+                padding: const EdgeInsets.only(left: 40, right: 20, top: 10),
                 child: Text(
-                  '心愿足迹',
-                  style: TextStyle(
+                  WishLocalizations.of(context)!.opHistoryTitle,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
@@ -223,7 +215,7 @@ class _OpPageViewState extends State<OpPageView> {
       expandedHeight: 110,
       actions: [
         Tooltip(
-          message: '编辑',
+          message: WishLocalizations.of(context)!.edit,
           child: IconButton(
               onPressed: () {
                 _gotoEditPage(context, widget.index);
@@ -246,10 +238,7 @@ class _OpPageViewState extends State<OpPageView> {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontWeight: FontWeight.w700, color: colorScheme.primary),
           ),
-          stretchModes: const [
-            StretchMode.blurBackground,
-            StretchMode.zoomBackground
-          ],
+          stretchModes: const [StretchMode.blurBackground, StretchMode.zoomBackground],
           expandedTitleScale: 24 / 20,
           background: SizedBox(
             child: Align(
@@ -292,8 +281,7 @@ class _OpPageViewState extends State<OpPageView> {
       if (stepResult?.isNotEmpty ?? false) {
         List<WishStep> stepList = [];
         for (var i = 0; i < widget.itemData.stepList!.length; i++) {
-          stepList
-              .add(WishStep(widget.itemData.stepList![i].desc, stepResult![i]));
+          stepList.add(WishStep(widget.itemData.stepList![i].desc, stepResult![i]));
         }
         return widget.itemData.copyWith(stepList: stepList);
       }
@@ -355,66 +343,79 @@ class TimeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var localizations = WishLocalizations.of(context)!;
     return ItemWrap(
-        itemLabel: '心愿时间',
+        itemLabel: localizations.opTimeCardTitle,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ItemWrapLabelRow(
-              label: '开始时间',
-              value: getDate(itemData.createdTime!),
+              label: localizations.opBeginTime,
+              value: getDate(localizations, itemData.createdTime!),
               isLabelGray: true,
             ),
             const SizedBox(height: 6),
             ItemWrapLabelRow(
-              label: '截止时间',
-              value:
-                  itemData.endTime == null ? '无期限' : getDate(itemData.endTime!),
+              label: localizations.opEndTime,
+              value: itemData.endTime == null ? localizations.opNoEnd : getDate(localizations, itemData.endTime!),
               isLabelGray: true,
             ),
             const SizedBox(height: 6),
             ItemWrapLabelRow(
-              label: '已持续',
-              value:
-                  '${DateTime.now().difference(itemData.createdTime!).inDays + 1} 天',
+              label: localizations.opTimeContinuous,
+              value: '${DateTime.now().difference(itemData.createdTime!).inDays + 1} ${localizations.days}',
               isLabelGray: true,
             ),
           ],
         ));
   }
 
-  String getDate(DateTime date) {
+  String getDate(WishLocalizations localizations, DateTime date) {
     // 今天、昨天、前天、明天、后天、周一、周二、周三、周四、周五、周六、周日
     int days = DateTime.now().difference(date).inDays;
     final String desc;
 
     switch (days) {
       case 0:
-        desc = '今天';
+        desc = localizations.today;
         break;
       case 1:
-        desc = '昨天';
+        desc = localizations.yesterday;
         break;
       case 2:
-        desc = '前天';
+        desc = localizations.beforeYesterday;
         break;
       case -1:
-        desc = '明天';
+        desc = localizations.tomorrow;
         break;
       case -2:
-        desc = '后天';
+        desc = localizations.afterTomorrow;
         break;
       default:
-        desc = getWeek(date);
+        desc = getWeek(localizations, date);
         break;
     }
     return '${date.year}-${date.month}-${date.day} $desc';
   }
 
-  static const List<String> _weekList = ['一', '二', '三', '四', '五', '六', '日'];
-
-  String getWeek(DateTime date) {
-    return '周${_weekList[date.weekday - 1]}';
+  String getWeek(WishLocalizations localizations, DateTime date) {
+    switch (date.weekday) {
+      case 1:
+        return localizations.weekday1;
+      case 2:
+        return localizations.weekday2;
+      case 3:
+        return localizations.weekday3;
+      case 4:
+        return localizations.weekday4;
+      case 5:
+        return localizations.weekday5;
+      case 6:
+        return localizations.weekday6;
+      case 7:
+      default:
+        return localizations.weekday7;
+    }
   }
 }
 
@@ -475,36 +476,33 @@ class _OpCardState extends State<OpCard> {
     }
 
     return ItemWrap(
-      itemLabel: '进度更新',
+      itemLabel: WishLocalizations.of(context)!.opCardTitle,
       padding: padding,
       child: _buildContent(),
     );
   }
 
   _handleDoneStep(int stepIndex) async {
-    var res = await DatabaseHelper.instance
-        .handleDoneStep(widget.itemData, _generateSteps(), stepIndex);
+    var res = await DatabaseHelper.instance.handleDoneStep(widget.itemData, _generateSteps(), stepIndex);
     if (res > 0) {
       eventBus.fire(UpdateWishEvent(widget.index, widget.itemData.id!));
     }
   }
 
   _handleUpdateRepeat(int oldCount, int newCount) async {
-    var res = await DatabaseHelper.instance
-        .handleUpdateRepeat(widget.itemData, oldCount, newCount);
+    var res = await DatabaseHelper.instance.handleUpdateRepeat(widget.itemData, oldCount, newCount);
     if (res > 0) {
       eventBus.fire(UpdateWishEvent(widget.index, widget.itemData.id!));
     }
   }
 
   Widget _buildContent() {
+    var localizations = WishLocalizations.of(context)!;
     if (widget.itemData.wishType == WishType.wish) {
-      if (widget.itemData.stepList == null ||
-          widget.itemData.stepList!.isEmpty) {
-        return const SizedBox(
+      if (widget.itemData.stepList == null || widget.itemData.stepList!.isEmpty) {
+        return SizedBox(
             width: double.infinity,
-            child: Text('未设置计划步骤，可点击右下角按钮、直接完成或取消完成心愿',
-                style: TextStyle(fontSize: 16, color: Colors.grey)));
+            child: Text(localizations.opStepsTip, style: const TextStyle(fontSize: 16, color: Colors.grey)));
       } else {
         return Column(
           // 带index的遍历
@@ -513,8 +511,7 @@ class _OpCardState extends State<OpCard> {
               .map((i, step) => MapEntry(
                   i,
                   Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
                     child: RadioCheck(
                       initValue: step.done,
                       desc: step.desc,
@@ -533,14 +530,13 @@ class _OpCardState extends State<OpCard> {
       return Column(
         children: [
           ItemWrapLabelRow(
-              label: '目标次数', value: '${widget.itemData.repeatCount}次'),
+              label: localizations.opTargetTimes, value: '${widget.itemData.repeatCount}${localizations.opTimesUnit}'),
           Row(
             children: [
-              const SizedBox(
-                  width: labelWidth,
-                  child: Text('已完成次数',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w700))),
+              SizedBox(
+                  width: HookData.instance.labelWidth,
+                  child: Text(localizations.opDoneTimes,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
               Transform.scale(
                 scale: 0.9,
                 child: Transform.translate(
@@ -553,8 +549,7 @@ class _OpCardState extends State<OpCard> {
                       if (_countUpdateDebounce?.isActive ?? false) {
                         _countUpdateDebounce!.cancel();
                       }
-                      _countUpdateDebounce =
-                          Timer(const Duration(milliseconds: 500), () {
+                      _countUpdateDebounce = Timer(const Duration(milliseconds: 500), () {
                         _handleUpdateRepeat(_actualRepeatCount, value);
                         _actualRepeatCount = value;
                       });
@@ -587,8 +582,7 @@ class CheckInContent extends StatefulWidget {
   final WishData itemData;
   final int index;
 
-  const CheckInContent(
-      {super.key, required this.itemData, required this.index});
+  const CheckInContent({super.key, required this.itemData, required this.index});
 
   @override
   State<StatefulWidget> createState() => _CheckInContentState();
@@ -607,8 +601,7 @@ class _CheckInContentState extends State<CheckInContent> {
   }
 
   _handlePause(bool isPaused) async {
-    var res =
-        await DatabaseHelper.instance.handlePauseOp(widget.itemData, isPaused);
+    var res = await DatabaseHelper.instance.handlePauseOp(widget.itemData, isPaused);
     if (res > 0) {
       eventBus.fire(UpdateWishEvent(widget.index, widget.itemData.id!));
     }
@@ -617,8 +610,7 @@ class _CheckInContentState extends State<CheckInContent> {
   @override
   void initState() {
     super.initState();
-    if (widget.itemData.checkedTimeList == null ||
-        widget.itemData.checkedTimeList!.isEmpty) {
+    if (widget.itemData.checkedTimeList == null || widget.itemData.checkedTimeList!.isEmpty) {
       _preCheckInCount = 0;
       _todayCheckIn = false;
     } else {
@@ -644,43 +636,41 @@ class _CheckInContentState extends State<CheckInContent> {
     } else {
       days = DateTime.now().difference(latestTime).inDays;
     }
+    var localizations = WishLocalizations.of(context)!;
 
     return Column(
       children: [
-        ItemWrapLabelRow(
-            label: '打卡间隔', value: '每 ${widget.itemData.periodDays} 天一次'),
+        ItemWrapLabelRow(label: localizations.opPeriodLabel, value: localizations.opPeriodDetail(widget.itemData.periodDays!)),
         const SizedBox(
           height: 6,
         ),
         ItemWrapLabelRow(
-            label: '打卡时间',
-            value: TimeUtils.getShowTime(widget.itemData.checkInTime!)),
+            label: localizations.opCheckInTimeLabel, value: TimeUtils.getShowTime(widget.itemData.checkInTime!)),
         const SizedBox(
           height: 6,
         ),
         ItemWrapLabelRow(
-            label: '打卡次数',
-            value: '${_preCheckInCount + (_todayCheckIn ? 1 : 0)} 次'),
+            label: localizations.opCheckTimesLabel, value: '${_preCheckInCount + (_todayCheckIn ? 1 : 0)} ${localizations.opTimesUnit}'),
         if (days != null) ...[
           const SizedBox(
             height: 6,
           ),
           ItemWrapLabelRow(
-              label: '上次打卡',
-              value: _getLatestCheckIn(days, widget.itemData.periodDays!)),
+              label: localizations.opLastCheckInLabel,
+              value: _getLatestCheckIn(localizations, days, widget.itemData.periodDays!)),
         ],
         SizedBox(
           height: 34,
           child: Row(
             children: [
-              const SizedBox(
-                  width: labelWidth,
-                  child: Text('今日打卡',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w700))),
+              SizedBox(
+                  width: HookData.instance.labelWidth,
+                  child: Text(localizations.opTodayCheckIn,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
               DoneSwitch(
-                noText: '未打卡',
-                yesText: '已打卡',
+                labelWidth: HookData.instance.switchLabelWidth,
+                noText: localizations.opNoCheckedIn,
+                yesText: localizations.opCheckedIn,
                 contentPadding: 0,
                 initValue: _todayCheckIn,
                 textSize: 16,
@@ -700,17 +690,17 @@ class _CheckInContentState extends State<CheckInContent> {
           height: 25,
           child: Row(
             children: [
-              const SizedBox(
-                  width: labelWidth,
+              SizedBox(
+                  width: HookData.instance.labelWidth,
                   child: Tooltip(
-                    message: '暂停后，将不会再提醒打卡',
-                    child: Text('暂停打卡',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w700)),
+                    message: localizations.opPauseTip,
+                    child: Text(localizations.opPauseCheckInLabel,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                   )),
               DoneSwitch(
-                noText: '已暂停',
-                yesText: '进行中',
+                labelWidth: HookData.instance.switchLabelWidth,
+                noText: localizations.opPaused,
+                yesText: localizations.opDoing,
                 contentPadding: 0,
                 initValue: !_isPaused,
                 textSize: 16,
@@ -730,17 +720,17 @@ class _CheckInContentState extends State<CheckInContent> {
     );
   }
 
-  String _getLatestCheckIn(int days, int periodDays) {
+  String _getLatestCheckIn(WishLocalizations localizations, int days, int periodDays) {
     if (periodDays < days) {
       return '${TimeUtils.getShowDate(widget.itemData.checkedTimeList!.last)}  已超过$periodDays天未打卡了';
     }
     switch (days) {
       case 0:
-        return '今天';
+        return localizations.today;
       case 1:
-        return '昨天';
+        return localizations.yesterday;
       case 2:
-        return '前天';
+        return localizations.beforeYesterday;
       default:
         return TimeUtils.getShowDate(widget.itemData.checkedTimeList!.last);
     }

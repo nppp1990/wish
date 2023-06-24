@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 // import 'package:google_fonts/google_fonts.dart';
 
-class GalleryThemeData {
+class WishThemeData {
   static const darkGreenBorderColor = Color(0xFF366d54);
   static const darkSelectedColor = Color(0xff242424);
 

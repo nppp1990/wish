@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:wish/data/style/wish_options.dart';
 import 'package:wish/data/wish_data.dart';
 import 'package:wish/utils/struct.dart';
 
@@ -10,9 +11,35 @@ class EmptyTip {
   EmptyTip(this.title, {this.author});
 }
 
+var _emptyTipsEn = [
+  EmptyTip(
+      'Without ideals, there is no beautiful wish\nand there will never be a beautiful reality.', author: 'Dostoevsky'),
+  EmptyTip(
+    'There is only one thing that makes people tired:\nhesitation and indecision.\nAnd every time you do something, you will be free\nEven if you do it badly, it is better than doing nothing',),
+  EmptyTip(
+      'In the new year, if you want to not waste time\nyou might as well take out a piece of letter paper\nWrite down your wishes, one by one'),
+  EmptyTip('Written wishes\neasier to achieve'),
+  EmptyTip(
+      'Without ideals, there is no beautiful wish\nand there will never be a beautiful reality.', author: 'Dostoevsky'),
+  EmptyTip(
+    'There is only one thing that makes people tired:\nhesitation and indecision.\nAnd every time you do something, you will be free\nEven if you do it badly, it is better than doing nothing',),
+  EmptyTip(
+      'In the new year, if you want to not waste time\nyou might as well take out a piece of letter paper\nWrite down your wishes, one by one'),
+  EmptyTip('Written wishes\neasier to achieve'),
+  EmptyTip('Without ideals in the chest, living in vain for a lifetime'),
+  EmptyTip('A person who realizes his dream is a successful person'),
+  EmptyTip('Once the dream is put into action, it will become sacred', author: 'Procter'),
+  EmptyTip('You can only be happy if you have a wish', author: 'Schiller'),
+  EmptyTip(
+      'No matter how vague the dream is\nIt is always hidden in our hearts\nMake our mood never get peace\nUntil these dreams become facts\n'),
+  EmptyTip('The dream is the blueprint of the future', author: 'Victor Hugo'),
+];
+
 var _emptyTips = [
   EmptyTip('没有理想，即没有某种美好的愿望\n也就永远不会有美好的现实。', author: '陀思妥耶夫斯基'),
-  EmptyTip('只有一件事会使人疲劳：\n摇摆不定和优柔寡断。\n而每做一件事，都会使人身心解放\n即使把事情办坏了，也比什么都不做强', author: '茨威格'),
+  EmptyTip(
+      '只有一件事会使人疲劳：\n摇摆不定和优柔寡断。\n而每做一件事，都会使人身心解放\n即使把事情办坏了，也比什么都不做强',
+      author: '茨威格'),
   EmptyTip('新的一年，想要不虚度光阴\n就要趁早谋划，树立新的目标\n不妨拿出一张信笺\n把自己的愿望，一笔一划写下来'),
   EmptyTip('写下来的愿望\n更容易实现'),
   EmptyTip('胸无理想，枉活一世'),
@@ -47,9 +74,74 @@ class CheckInWishExample extends BaseExample {
   CheckInWishExample(super.title, this.periodDays);
 }
 
+var _wishExampleEn = [
+  WishExample('Experience a Different Life', steps: [
+    'Read a book you have never read',
+    'Walk a road you have never walked',
+    'See a scenery you have never seen',
+    'Smell a fragrance you have never smelled',
+    'Listen to a bird song you have never heard',
+    'Taste a food you have never tasted'
+  ]),
+  WishExample('Buy a house of your own'),
+  WishExample('Rich, free and beautiful'),
+  WishExample('Spend New Year\'s Eve with someone you like'),
+  WishExample('Pass the postgraduate entrance examination'),
+  WishExample('Cross the Eurasian continent', steps: [
+    'Arrive at the northernmost point of Norway',
+    'Enjoy the midnight sun'
+  ]),
+  WishExample(
+    'Travel to the most beautiful places in the world',
+    steps: [
+      'The Great Wall of China',
+      'The Pyramids of Egypt',
+      'The Taj Mahal',
+      'The Grand Canyon',
+      'The Great Barrier Reef',
+      'The Victoria Falls',
+      'The Aurora Borealis',
+      'The Parthenon',
+      'The Colosseum',
+      'The Eiffel Tower',
+      'The Leaning Tower of Pisa',
+      'The Statue of Liberty',
+      'The Sydney Opera House',
+      'The Golden Gate Bridge',
+      'The London Eye',
+      'The Burj Khalifa',
+      'The Petronas Twin Towers',
+      'The Sagrada Familia',
+      'The Kremlin',
+      'The Louvre',
+      'The Alhambra',
+      'The Neuschwanstein Castle',
+      'The Acropolis of Athens',
+      'The Stonehenge',
+      'The Moai Statues',
+      'The Machu Picchu',
+      'The Angkor Wat',
+      'The Mount Fuji',
+      'The Mount Everest',
+      'The Amazon Rainforest',
+      'The Sahara Desert',
+      'The Antarctica',
+    ],
+  ),
+  WishExample('Buy a car'),
+  WishExample('Learn to drive',),
+  WishExample('Learn to swim'),
+];
+
 var _wishExample = [
-  WishExample('体验不一样的人生',
-      steps: ['读，从未读过的书', '走，从未走过的路', '看，从未看过的风景', '闻，从未闻过的清香', '听，从未听过的鸟语', '品，从未品过的美食']),
+  WishExample('体验不一样的人生', steps: [
+    '读，从未读过的书',
+    '走，从未走过的路',
+    '看，从未看过的风景',
+    '闻，从未闻过的清香',
+    '听，从未听过的鸟语',
+    '品，从未品过的美食'
+  ]),
   WishExample('买套属于自己的房子'),
   WishExample('有钱有闲有颜'),
   WishExample('去重庆吃地道的重庆火锅'),
@@ -71,7 +163,8 @@ var _wishExample = [
   WishExample(
     '练出马甲线',
   ),
-  WishExample('挣钱存钱', steps: ['做好存钱计划', '找一个记账app、学会记账', '尽早还清欠银行的钱', '尝试副业', '增强专业技能、涨工资']),
+  WishExample('挣钱存钱',
+      steps: ['做好存钱计划', '找一个记账app、学会记账', '尽早还清欠银行的钱', '尝试副业', '增强专业技能、涨工资']),
   WishExample('拍一组写真', steps: [
     '找个好地方',
     '找个好摄影师',
@@ -90,12 +183,31 @@ var _wishExample = [
   ),
 ];
 
+var _repeatExampleEn = [
+  RepeatWishExample('Travel to 3 other cities', 3),
+  RepeatWishExample('Read 10 books of humanities', 10),
+  RepeatWishExample('Learn 3 ukulele fingerings', 3),
+  RepeatWishExample('Volunteer 5 times', 5),
+  RepeatWishExample('Learn 10 new dishes', 10),
+];
+
 var _repeatExample = [
   RepeatWishExample('去3个其他城市旅游', 3),
   RepeatWishExample('读10本人文类书', 10),
   RepeatWishExample('学会3首尤克里里指弹', 3),
   RepeatWishExample('做义工5次', 5),
   RepeatWishExample('学10到新菜', 10),
+];
+
+var _checkInExampleEn = [
+  CheckInWishExample('Call home once a week', 7),
+  CheckInWishExample('Exercise at least once a day', 1),
+  CheckInWishExample('Personal public number, stable output 1 article per week', 7),
+  CheckInWishExample('Read a book every month', 30),
+  CheckInWishExample('Organize albums and network disks once a week', 7),
+  CheckInWishExample('Keep 7 hours of sleep every day', 1),
+  CheckInWishExample('Keep a diary every day', 1),
+  CheckInWishExample('Post a note every week', 7),
 ];
 
 var _checkInExample = [
@@ -123,15 +235,15 @@ class ExampleGenerate {
   }
 
   static Pair<int, WishExample> generateWish({int? lastIndex}) {
-    return _generate(_wishExample, lastIndex: lastIndex);
+    return _generate(HookData.instance.isChinese ? _wishExample : _wishExampleEn, lastIndex: lastIndex);
   }
 
   static Pair<int, RepeatWishExample> generateRepeatWish({int? lastIndex}) {
-    return _generate(_repeatExample, lastIndex: lastIndex);
+    return _generate(HookData.instance.isChinese ? _repeatExample : _repeatExampleEn, lastIndex: lastIndex);
   }
 
   static Pair<int, CheckInWishExample> generateCheckInWish({int? lastIndex}) {
-    return _generate(_checkInExample, lastIndex: lastIndex);
+    return _generate(HookData.instance.isChinese ? _checkInExample : _checkInExampleEn, lastIndex: lastIndex);
   }
 
   static Pair<int, BaseExample> generateByIndex(WishType wishType, {int? lastIndex}) {
@@ -146,6 +258,10 @@ class ExampleGenerate {
   }
 
   static EmptyTip generateEmptyTip() {
-    return _emptyTips[Random().nextInt(_emptyTips.length)];
+    if (HookData.instance.isChinese) {
+      return _emptyTips[Random().nextInt(_emptyTips.length)];
+    } else {
+      return _emptyTipsEn[Random().nextInt(_emptyTipsEn.length)];
+    }
   }
 }

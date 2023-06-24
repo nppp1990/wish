@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/wish_localizations.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:wish/data/style/wish_options.dart';
 import 'package:wish/data/wish_data.dart';
 import 'package:wish/data/wish_icons.dart';
@@ -11,11 +13,19 @@ import 'package:wish/pages/list.dart';
 import 'package:wish/pages/review_page.dart';
 import 'package:wish/pages/setting_page.dart';
 import 'package:wish/router/router_utils.dart';
-import 'package:wish/themes/gallery_theme_data.dart';
-import 'package:wish/utils/platfor.dart';
+import 'package:wish/themes/wish_theme_data.dart';
+import 'package:wish/utils/platform.dart';
 import 'package:wish/widgets/drawer.dart';
 
 Future<void> main() async {
+  await GetStorage.init();
+  if (PlatformUtils.instance.isMobile && Platform.isAndroid) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+      ),
+    );
+  }
   runApp(const MyApp());
 }
 
@@ -26,21 +36,30 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ModelBinding(
       initialModel: WishOptions(
-        themeMode: ThemeMode.light,
+        themeMode: lastTheme,
         platform: defaultTargetPlatform,
         isTestMode: false,
+        locale: lastLocale,
       ),
       child: Builder(builder: (context) {
         final options = WishOptions.of(context);
         return MaterialApp(
           home: const HomePage(),
           themeMode: options.themeMode,
-          theme: GalleryThemeData.lightThemeData.copyWith(
+          theme: WishThemeData.lightThemeData.copyWith(
             platform: options.platform,
           ),
-          darkTheme: GalleryThemeData.darkThemeData.copyWith(
+          darkTheme: WishThemeData.darkThemeData.copyWith(
             platform: options.platform,
           ),
+          locale: options.locale,
+          localizationsDelegates: WishLocalizations.localizationsDelegates,
+          supportedLocales: WishLocalizations.supportedLocales,
+          localeListResolutionCallback: (locales, supportedLocales) {
+            print('-----locales: $locales, supportedLocales: $supportedLocales');
+            HookData.instance.updateLabelWidth(locales?.first.languageCode);
+            return basicLocaleListResolution(locales, supportedLocales);
+          },
           // home: Scaffold(
         );
       }),
@@ -63,37 +82,30 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    if (PlatformUtils.instance.isMobile && Platform.isAndroid) {
-      SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-        ),
-      );
-    }
     _drawerType = DrawerType.allList;
     _sortType = SortType.createdTime;
   }
 
   @override
   Widget build(BuildContext context) {
+    var localizations = WishLocalizations.of(context)!;
     final String createText;
     switch (_drawerType) {
       case DrawerType.repeatList:
-        createText = '创建重复任务';
+        createText = localizations.menuCreateRepeatTask;
         break;
       case DrawerType.checkInList:
-        createText = '创建打卡任务';
+        createText = localizations.menuCreateCheckInTask;
         break;
       case DrawerType.allList:
       case DrawerType.wishList:
       default:
-        createText = '创建心愿';
+        createText = localizations.menuCreateWish;
         break;
     }
-    bool isLight = Theme.of(context).brightness == Brightness.light;
     return Scaffold(
         appBar: AppBar(
-          title: Text(_drawerType.toString()),
+          title: Text(_drawerType.getShowTitle(context)),
           actions: [
             PopupMenuButton(itemBuilder: (context) {
               return [
@@ -107,7 +119,7 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       _showSortDialog(_sortType, _isAsc);
                     },
-                    child: const Text('排序')),
+                    child: Text(localizations.sort)),
               ];
             })
           ],
@@ -181,7 +193,7 @@ class _HomePageState extends State<HomePage> {
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(itemType.toString(), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+            Text(itemType.getShowTitle(context), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
             const SizedBox(
               width: 6,
               height: 40,
@@ -210,17 +222,17 @@ class _HomePageState extends State<HomePage> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 color: colorScheme.secondary,
-                border: isLight ? null : Border.all(color: GalleryThemeData.darkGreenBorderColor, width: 1),
+                border: isLight ? null : Border.all(color: WishThemeData.darkGreenBorderColor, width: 1),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Text(
-                      '排序方式',
-                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
+                      WishLocalizations.of(context)!.sortDialogTitle,
+                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
                     ),
                   ),
                   buildItem(context, SortType.name),
